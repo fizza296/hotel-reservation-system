@@ -14,3 +14,5 @@ connection.query(createTableQuery, (err, results) => {
   // Close the connection
   connection.end();
 });
+
+//adding test comment
