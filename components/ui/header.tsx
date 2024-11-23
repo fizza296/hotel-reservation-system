@@ -43,7 +43,7 @@ export default function Header() {
 
           {/* User Actions */}
           <div className="flex items-center space-x-2">
-          <Link href="/app/listings" className="hidden sm:block bg-yellow-300 hover:bg-yellow-400 text-black py-2 px-4 rounded-full transition duration-300"> 
+          <Link href="/user_bookings" className="hidden sm:block bg-yellow-300 hover:bg-yellow-400 text-black py-2 px-4 rounded-full transition duration-300"> 
               My Bookings
             </Link>
             <Link href="/signin" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-full shadow hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 transition duration-300">
