@@ -1,88 +1,89 @@
-# Free Tailwind landing page template
+```markdown
+# Hotel Reservation System
 
-![Simple TailwindCSS template preview](https://github.com/cruip/tailwind-landing-page-template/assets/2683512/f9a98fab-a1bc-4fb5-8572-4de0b6bd932a)
+## Overview
 
-**Simple Light** is a free landing page template built on top of **TailwindCSS** and fully coded in **React** / **Next.js**. Simple light is designed to provide all the basic components a developer need to create a landing page for SaaS products, online services, and more.
-Use it for whatever you want, and be sure to reach us out on X if you build anything cool/useful with it.
-Created and maintained with ❤️ by [Cruip.com](https://cruip.com/).
+This Hotel Reservation System is a robust web application that allows users to create profiles, view hotel listings, book rooms, and manage reservations. Built with TypeScript, Tailwind CSS, and powered by a MySQL database, it offers a sleek user interface and a secure backend for handling complex functionalities.
 
-_Version 1.3.3 built with Tailwind CSS and React + Vite is available [here](https://github.com/cruip/tailwind-landing-page-template/releases/tag/1.3.3)._
+## Features
 
-## Live demo
+- **User Registration and Authentication**: Secure sign-up and login processes for users.
+- **Hotel Browsing**: Users can browse through a list of hotels.
+- **Room Booking**: Functionality to book rooms based on real-time availability.
+- **Reservation Management**: Users can view their bookings and cancel reservations.
+- **Responsive Design**: Fully responsive web design compatible with mobile and desktop devices.
 
-Check the live demo here 👉️ [https://simple.cruip.com/](https://simple.cruip.com/)
+## Technologies Used
 
-## Simple Pro
+- **Frontend**: TypeScript, Tailwind CSS, Next.js
+- **Backend**: Node.js, Express.js
+- **Database**: MySQL
 
-[![Simple Pro](https://github.com/cruip/tailwind-landing-page-template/assets/2683512/992be2ba-3de7-4838-be41-12e85686c193)](https://cruip.com/)
+## Getting Started
 
-## Design files
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-If you need the design files, you can download them from Figma's Community 👉 https://bit.ly/3HOZMpf
+### Prerequisites
 
-## Usage
+- Node.js
+- npm or yarn
+- MySQL
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+### Installing
 
-### Getting Started
+1. **Clone the repository**
 
-First, run the development server:
+   ```bash
+   git clone https://github.com/yourusername/hotel-reservation-system.git
+   cd hotel-reservation-system
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+2. **Install dependencies**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```bash
+   npm install
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+   or if you use yarn:
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+   ```bash
+   yarn install
+   ```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+3. **Set up the MySQL database**
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+   - Create a MySQL database and import any initial schema or data.
+   - Adjust the database connection settings in your config file or environment variables.
 
-### Learn More
+4. **Environment Variables**
 
-To learn more about Next.js, take a look at the following resources:
+   Create a `.env.local` file in the root directory and add the following:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```plaintext
+   DATABASE_HOST=localhost
+   DATABASE_USER=yourusername
+   DATABASE_PASSWORD=yourpassword
+   DATABASE_NAME=hoteldb
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   ```
 
-### Deploy on Vercel
+5. **Run the development server**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+   or if you use yarn:
 
-### Support notes
+   ```bash
+   yarn dev
+   ```
 
-This template has been developed with the App Router (`app`) and React Server Components. If you’re unfamiliar with these beta features, you can find more information about them on the Next.js beta documentation page. So, please note that any request dealing with React (e.g. extra features, customisations, et cetera) is to be considered out of the support scope.
+   Visit `http://localhost:3000` in your browser.
 
-For more information about what support covers, please see our (FAQs)[https://cruip.com/faq/].
 
 ## Credits
 
-- [Nucleo](https://nucleoapp.com/)
+### Nucleo
 
-## Terms and License
-
-- Released under the [GPL](https://www.gnu.org/licenses/gpl-3.0.html).
-- Copyright 2024 [Cruip](https://cruip.com/).
-- Use it for personal and commercial projects, but please don’t republish, redistribute, or resell the template.
-- Attribution is not required, although it is really appreciated.
-
-## About Us
-
-We're an Italian developer/designer duo creating high-quality design/code resources for developers, makers, and startups.
-
-## Stay in the loop
-
-If you would like to know when we release new resources, you can follow [@pacovitiello](https://x.com/pacovitiello) and [@DavidePacilio](https://x.com/DavidePacilio) on X, or you can subscribe to our [newsletter](https://cruip.com/newsletter/).
 

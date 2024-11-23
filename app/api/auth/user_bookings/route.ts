@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import db from '../../../../db';
-import { RowDataPacket } from 'mysql2';
 import { cookies } from 'next/headers';
+import { RowDataPacket, FieldPacket } from 'mysql2';
 
 export async function GET() {
   const cookieStore = cookies();
@@ -17,10 +17,11 @@ export async function GET() {
   }
 
   try {
-    const [bookings] = await db.promise().query<RowDataPacket[]>(`
+    // Correctly type the response from the database
+    const [bookings, fields]: [RowDataPacket[], FieldPacket[]] = await db.promise().query(`
       SELECT 
         b.booking_id,
-        h.name AS hotel_name, -- Corrected column name
+        h.name AS hotel_name,
         r.room_type,
         b.check_in_date,
         b.check_out_date,
@@ -43,6 +44,3 @@ export async function GET() {
     return NextResponse.json({ message: 'Error fetching bookings', error: (error as Error).message }, { status: 500 });
   }
 }
-
-
-

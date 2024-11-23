@@ -50,7 +50,7 @@ export default function SignIn() {
 
         setSuccessMessage('Signed in successfully!');
         setErrorMessage('');
-        router.push('/hotels');  // Redirect to hotels page after login
+        router.push('/');  // Redirect to home page
       } else {
         setErrorMessage(data.message || 'Invalid email or password');
         setSuccessMessage('');
