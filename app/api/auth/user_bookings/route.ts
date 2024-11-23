@@ -25,7 +25,8 @@ export async function GET() {
         b.check_in_date,
         b.check_out_date,
         b.status,
-        b.special_requests
+        b.special_requests,
+        b.created_at
       FROM Bookings b
       JOIN Hotels h ON b.hotel_id = h.hotel_id
       JOIN Rooms r ON b.room_id = r.room_id
