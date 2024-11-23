@@ -1,11 +1,13 @@
 const mysql = require('mysql2');
 
+require('dotenv').config();
+
 // Create a connection to the AWS RDS MySQL database
 const connection = mysql.createConnection({
-  host: 'hotel-reservation-system.cn4oo24osytm.eu-north-1.rds.amazonaws.com', // Replace with your RDS endpoint
-  user: 'admin',          // Your RDS username
-  password: '12345678', // Your RDS password
-  database: 'hrs' // The name of the database you want to use
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 // Connect to the database
@@ -16,5 +18,7 @@ connection.connect((err) => {
   }
   console.log('Connected to the database with thread ID: ' + connection.threadId);
 });
+
+
 
 module.exports = connection;
