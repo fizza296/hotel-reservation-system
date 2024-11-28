@@ -80,6 +80,12 @@ export default function UserBookingsPage() {
     router.push(`/update_bookings?booking_id=${bookingId}`);
   };
 
+  const isBookingWithin24Hours = (createdAt: string): boolean => {
+    const createdTime = moment(createdAt);
+    const now = moment();
+    return now.diff(createdTime, "hours") <= 24;
+  };
+
   if (loading)
     return (
       <div className="flex items-center justify-center py-20">
@@ -143,7 +149,7 @@ export default function UserBookingsPage() {
               )}
             </div>
             <div className="mt-6 flex justify-end gap-4">
-              {booking.status !== "cancelled" && (
+              {isBookingWithin24Hours(booking.created_at) && booking.status !== "cancelled" && (
                 <>
                   <button
                     onClick={() => goToUpdateBooking(booking.booking_id)}
@@ -166,5 +172,6 @@ export default function UserBookingsPage() {
     </div>
   );
 }
+
 
 

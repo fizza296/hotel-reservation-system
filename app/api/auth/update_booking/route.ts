@@ -4,14 +4,14 @@ import { ResultSetHeader} from "mysql2";
 
 export async function POST(req: Request) {
   try {
-    const { bookingId, check_in, check_out, status } = await req.json();
+    const { check_in, check_out } = await req.json();
     const { searchParams } = new URL(req.url);
     const bookid = searchParams.get('booking_id');
 
     
     const [result] = await db.promise().query<ResultSetHeader>(
-      "UPDATE Bookings SET check_in_date = ?, check_out_date = ?, status = ? WHERE booking_id = ?",
-      [check_in, check_out, status, bookid]
+      "UPDATE Bookings SET check_in_date = ?, check_out_date = ? WHERE booking_id = ?",
+      [check_in, check_out, bookid]
     );
 
     if (result.affectedRows === 0) {

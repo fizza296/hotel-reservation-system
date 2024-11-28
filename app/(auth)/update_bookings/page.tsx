@@ -10,7 +10,6 @@ interface Booking {
   booking_date: string;
   check_in: string;
   check_out: string;
-  status: string;
 }
 
 export default function UpdateBookingPage() {
@@ -90,8 +89,7 @@ export default function UpdateBookingPage() {
             const updatedBooking = {
               ...booking,
               check_in: (e.target as any).check_in.value,
-              check_out: (e.target as any).check_out.value,
-              status: (e.target as any).status.value,
+              check_out: (e.target as any).check_out.value
             };
             handleUpdate(updatedBooking as Booking);
           }}
@@ -114,14 +112,6 @@ export default function UpdateBookingPage() {
             />
           </label>
           <br />
-          <label>
-            Status:
-            <select name="status" defaultValue={booking.status}>
-              <option value="confirmed">Confirmed</option>
-              <option value="pending">Pending</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </label>
           <br />
           <button type="submit">Update Booking</button>
         </form>
