@@ -15,13 +15,13 @@ type Review = {
 };
 
 export default function RoomsPage() {
+  const [hotelName, setHotelName] = useState<string | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [hotelId, setHotelId] = useState<string | null>(null);
   const router = useRouter();
 
-  // Fetch rooms and reviews
   const fetchRoomsAndReviews = async () => {
     if (!hotelId) return;
     setLoading(true);
@@ -29,11 +29,13 @@ export default function RoomsPage() {
       const res = await fetch(`/api/auth/rooms?hotel_id=${hotelId}`);
       const data = await res.json();
 
-      // Set rooms and reviews
+      // Set hotel name, rooms, and reviews
+      setHotelName(data.hotelName || "Unknown Hotel");
       setRooms(Array.isArray(data.rooms) ? data.rooms : []);
       setReviews(Array.isArray(data.reviews) ? data.reviews : []);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setHotelName(null);
       setRooms([]);
       setReviews([]);
     } finally {
@@ -41,20 +43,17 @@ export default function RoomsPage() {
     }
   };
 
-  // Get hotelId from query parameters
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("hotel_id");
     setHotelId(id);
   }, []);
 
-  // Fetch data when hotelId is set
   useEffect(() => {
     if (hotelId) {
       fetchRoomsAndReviews();
     }
   }, [hotelId]);
 
-  // Navigate to booking page
   const goToBookingPage = (roomId: number) => {
     router.push(`/bookings?hotel_id=${hotelId}&room_id=${roomId}`);
   };
@@ -65,6 +64,11 @@ export default function RoomsPage() {
 
   return (
     <div className="page-container">
+      {/* Hotel Name */}
+      <header className="hotel-header">
+        <h1>{hotelName}</h1>
+      </header>
+
       {/* Rooms Section */}
       <div className="rooms-section">
         <h2>Rooms</h2>
@@ -118,6 +122,16 @@ export default function RoomsPage() {
           gap: 20px;
           padding: 20px;
           background-color: #f5f5f5;
+        }
+
+        .hotel-header {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+
+        .hotel-header h1 {
+          font-size: 2rem;
+          color: #0070f3;
         }
 
         .rooms-section,
@@ -199,4 +213,5 @@ export default function RoomsPage() {
     </div>
   );
 }
+
 
