@@ -14,6 +14,8 @@ type User = {
   user_id: number;
   username: string;
   email: string;
+  phone_number?: string;
+  password?: string; // Added password field
 };
 
 type Review = {
@@ -30,12 +32,19 @@ export default function AdminPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [showHotelModal, setShowHotelModal] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false); // New state for user modal
   const [newHotel, setNewHotel] = useState<Partial<Hotel>>({
     name: "",
     description: "",
     image_link: "",
     rating: 0,
+  });
+  const [newUser, setNewUser] = useState<Partial<User>>({
+    username: "",
+    email: "",
+    phone_number: "",
+    password: "", // Ensure password is included
   });
 
   useEffect(() => {
@@ -48,22 +57,11 @@ export default function AdminPage() {
           fetch(`/api/auth/reviews`).then((res) => res.json()),
         ]);
 
-        console.log("Hotel Response:", hotelRes);
-        console.log("User Response:", userRes);
-        console.log("Review Response:", reviewRes);
-
-        // Ensure data is an array before updating the state
         if (Array.isArray(hotelRes)) setHotels(hotelRes);
-        else console.error("Hotels data is not an array:", hotelRes);
-
         if (Array.isArray(userRes)) setUsers(userRes);
-        else console.error("Users data is not an array:", userRes);
-
         if (Array.isArray(reviewRes)) setReviews(reviewRes);
-        else console.error("Reviews data is not an array:", reviewRes);
       } catch (error) {
         setMessage("Error fetching data.");
-        console.error("Error:", error);
       } finally {
         setLoading(false);
       }
@@ -72,18 +70,14 @@ export default function AdminPage() {
     fetchData();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleHotelInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewHotel((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Convert file to a preview URL or handle as needed
-      const imageUrl = URL.createObjectURL(file);
-      setNewHotel((prev) => ({ ...prev, image_link: imageUrl }));
-    }
+  const handleUserInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewUser((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddHotel = async () => {
@@ -97,14 +91,34 @@ export default function AdminPage() {
       if (res.ok) {
         const addedHotel = await res.json();
         setHotels([...hotels, addedHotel]);
-        setShowModal(false); // Close the modal
+        setShowHotelModal(false); // Close the modal
         setNewHotel({ name: "", description: "", image_link: "", rating: 0 }); // Reset form
       } else {
-        const error = await res.json();
-        console.error("Failed to add hotel:", error);
+        setMessage("Failed to add hotel.");
       }
     } catch (error) {
-      console.error("Error adding hotel:", error);
+      setMessage("Error adding hotel.");
+    }
+  };
+
+  const handleAddUser = async () => {
+    try {
+      const res = await fetch(`/api/auth/add_user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUser),
+      });
+
+      if (res.ok) {
+        const addedUser = await res.json();
+        setUsers([...users, addedUser]);
+        setShowUserModal(false); // Close the modal
+        setNewUser({ username: "", email: "", phone_number: "", password: "" }); // Reset form
+      } else {
+        setMessage("Failed to add user.");
+      }
+    } catch (error) {
+      setMessage("Error adding user.");
     }
   };
 
@@ -123,7 +137,6 @@ export default function AdminPage() {
       }
     } catch (error) {
       setMessage("Error deleting hotel.");
-      console.error("Error:", error);
     }
   };
 
@@ -142,7 +155,6 @@ export default function AdminPage() {
       }
     } catch (error) {
       setMessage("Error deleting user.");
-      console.error("Error:", error);
     }
   };
 
@@ -161,7 +173,6 @@ export default function AdminPage() {
       }
     } catch (error) {
       setMessage("Error deleting review.");
-      console.error("Error:", error);
     }
   };
 
@@ -185,75 +196,80 @@ export default function AdminPage() {
 
       {/* Add Hotel Button */}
       <button
-        onClick={() => setShowModal(true)}
+        onClick={() => setShowHotelModal(true)}
         className="rounded-md bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700 mt-4"
       >
         Add Hotel
       </button>
 
-      {/* Modal */}
-      {showModal && (
+      {/* Add User Button */}
+      <button
+        onClick={() => setShowUserModal(true)}
+        className="rounded-md bg-green-600 px-4 py-2 text-white shadow hover:bg-green-700 mt-4"
+      >
+        Add User
+      </button>
+
+      {/* Modal for Add User */}
+      {showUserModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4">Add New Hotel</h2>
+            <h2 className="text-2xl font-bold mb-4">Add New User</h2>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleAddHotel();
+                handleAddUser();
               }}
             >
               <label className="block mb-2">
-                <span className="text-gray-700">Hotel Name</span>
+                <span className="text-gray-700">Username</span>
                 <input
                   type="text"
-                  name="name"
-                  value={newHotel.name || ""}
-                  onChange={handleInputChange}
+                  name="username"
+                  value={newUser.username || ""}
+                  onChange={handleUserInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   required
                 />
               </label>
               <label className="block mb-2">
-                <span className="text-gray-700">Description</span>
-                <textarea
-                  name="description"
-                  value={newHotel.description || ""}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  required
-                ></textarea>
-              </label>
-              <label className="block mb-2">
-                <span className="text-gray-700">Rating</span>
+                <span className="text-gray-700">Email</span>
                 <input
-                  type="number"
-                  name="rating"
-                  value={newHotel.rating || ""}
-                  onChange={handleInputChange}
-                  min="0"
-                  max="5"
-                  step="0.1"
+                  type="email"
+                  name="email"
+                  value={newUser.email || ""}
+                  onChange={handleUserInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   required
                 />
               </label>
               <label className="block mb-2">
-                <span className="text-gray-700">Image</span>
+                <span className="text-gray-700">Phone Number</span>
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="mt-1 block w-full"
+                  type="text"
+                  name="phone_number"
+                  value={newUser.phone_number || ""}
+                  onChange={handleUserInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
-                {newHotel.image_link && (
-                  <img src={newHotel.image_link} alt="Preview" className="mt-2 h-32 w-auto rounded" />
-                )}
               </label>
-              <div className="mt-4 flex justify-end gap-4">
+              <label className="block mb-2">
+                <span className="text-gray-700">Password</span>
+                <input
+                  type="password"
+                  name="password"
+                  value={newUser.password || ""}
+                  onChange={handleUserInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  required
+                />
+              </label>
+
+              <div className="mt-4 flex justify-between">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
-                  className="rounded-md bg-gray-300 px-4 py-2 shadow hover:bg-gray-400"
+                  onClick={() => setShowUserModal(false)}
+                  className="text-gray-500"
                 >
                   Cancel
                 </button>
@@ -261,7 +277,7 @@ export default function AdminPage() {
                   type="submit"
                   className="rounded-md bg-green-600 px-4 py-2 text-white shadow hover:bg-green-700"
                 >
-                  Save
+                  Add User
                 </button>
               </div>
             </form>
@@ -269,21 +285,19 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Hotels Section */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Hotels</h2>
-        <ul>
+      {/* List of Hotels */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-gray-800">Hotels</h2>
+        <ul className="space-y-4">
           {hotels.map((hotel) => (
-            <li key={hotel.hotel_id} className="mb-4">
+            <li key={hotel.hotel_id} className="border p-4 rounded-lg">
+              <h3 className="text-lg font-semibold">{hotel.name}</h3>
+              <p>{hotel.description}</p>
               <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-xl font-bold">{hotel.name}</h3>
-                  <p>{hotel.description}</p>
-                  {hotel.image_link && <img src={hotel.image_link} alt={hotel.name} className="mt-2 h-32 w-auto rounded" />}
-                </div>
+                <span className="text-gray-600">Rating: {hotel.rating}</span>
                 <button
                   onClick={() => handleDeleteHotel(hotel.hotel_id)}
-                  className="rounded-md bg-red-600 px-4 py-2 text-white shadow hover:bg-red-700"
+                  className="text-red-600 hover:text-red-800"
                 >
                   Delete
                 </button>
@@ -291,22 +305,20 @@ export default function AdminPage() {
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      {/* Users Section */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Users</h2>
-        <ul>
+      {/* List of Users */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-gray-800">Users</h2>
+        <ul className="space-y-4">
           {users.map((user) => (
-            <li key={user.user_id} className="mb-4">
+            <li key={user.user_id} className="border p-4 rounded-lg">
+              <h3 className="text-lg font-semibold">{user.username}</h3>
+              <p>{user.email}</p>
               <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-xl font-bold">{user.username}</h3>
-                  <p>{user.email}</p>
-                </div>
                 <button
                   onClick={() => handleDeleteUser(user.user_id)}
-                  className="rounded-md bg-red-600 px-4 py-2 text-white shadow hover:bg-red-700"
+                  className="text-red-600 hover:text-red-800"
                 >
                   Delete
                 </button>
@@ -314,29 +326,31 @@ export default function AdminPage() {
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      {/* Reviews Section */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
-        <ul>
+      {/* List of Reviews */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-gray-800">Reviews</h2>
+        <ul className="space-y-4">
           {reviews.map((review) => (
-            <li key={review.review_id} className="mb-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm">{review.review_text}</p>
-                </div>
-                <button
-                  onClick={() => handleDeleteReview(review.review_id)}
-                  className="rounded-md bg-red-600 px-4 py-2 text-white shadow hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              </div>
+            <li key={review.review_id} className="border p-4 rounded-lg">
+              <h3 className="text-lg font-semibold">
+                Hotel ID: {review.hotel_id} - User ID: {review.user_id}
+              </h3>
+              <p>Rating: {review.rating}</p>
+              <p>{review.review_text}</p>
+              <button
+                onClick={() => handleDeleteReview(review.review_id)}
+                className="text-red-600 hover:text-red-800"
+              >
+                Delete
+              </button>
             </li>
           ))}
         </ul>
-      </section>
+      </div>
     </div>
   );
 }
+
+

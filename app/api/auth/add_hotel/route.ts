@@ -29,3 +29,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Error adding hotel', error: (error as Error).message }, { status: 500 });
   }
 }
+
+
+
+
+
+
