@@ -17,21 +17,31 @@ export async function GET() {
   }
 
   try {
-    // Fetch user data including name from the database
+    // Fetch user data including username and Admin_permission from the database
     const [userData] = await db.promise().query<RowDataPacket[]>(
-      `SELECT username FROM Users WHERE user_id = ?`, [userId]
+      `SELECT username, Admin_permission FROM Users WHERE user_id = ?`, 
+      [userId]
     );
 
     if (userData.length === 0) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    // Assuming the 'name' column exists and contains the user's name
-    const userName = userData[0].username;
-    
-    return NextResponse.json({ isLoggedIn: true, userId, name: userName }, { status: 200 });
+    // Extract username and Admin_permission from the query result
+    const { username, Admin_permission } = userData[0];
+
+    return NextResponse.json({ 
+      isLoggedIn: true, 
+      userId, 
+      name: username, 
+      adminPermission: Admin_permission // Include Admin_permission in the response
+    }, { status: 200 });
   } catch (error) {
     console.error('Error fetching user data:', error);
-    return NextResponse.json({ message: 'Error fetching user data', error: (error as Error).message }, { status: 500 });
+    return NextResponse.json({ 
+      message: 'Error fetching user data', 
+      error: (error as Error).message 
+    }, { status: 500 });
   }
 }
+

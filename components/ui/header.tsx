@@ -8,11 +8,13 @@ interface SessionInfo {
   isLoggedIn: boolean;
   userId?: number;
   name?: string;
+  adminPermission?: string; // Add adminPermission to the interface
 }
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     async function fetchSessionInfo() {
@@ -22,15 +24,18 @@ export default function Header() {
         
         if (response.ok && data.isLoggedIn) {
           setIsLoggedIn(true);
-          setUserName(data.name ?? null);;
+          setUserName(data.name ?? null);
+          setIsAdmin(data.adminPermission === 'yes'); // Check if the user is an admin
         } else {
           setIsLoggedIn(false);
           setUserName(null);
+          setIsAdmin(false);
         }
       } catch (error) {
         console.error("Failed to fetch session info:", error);
         setIsLoggedIn(false);
         setUserName(null);
+        setIsAdmin(false);
       }
     }
 
@@ -58,7 +63,11 @@ export default function Header() {
                 <span className="sm:block bg-yellow-300 hover:bg-yellow-400 text-black py-2 px-4 rounded-full transition duration-300">
                   Hello, {userName}
                 </span>
-                <Link href="/user_bookings" className="sm:block bg-yellow-300 hover:bg-yellow-400 text-black py-2 px-4 rounded-full transition duration-300">My Bookings</Link>
+                {isAdmin ? (
+                  <Link href="/admin_settings" className="sm:block bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-full transition duration-300">Admin Settings</Link>
+                ) : (
+                  <Link href="/user_bookings" className="sm:block bg-yellow-300 hover:bg-yellow-400 text-black py-2 px-4 rounded-full transition duration-300">My Bookings</Link>
+                )}
                 <Link href="/api/auth/signout" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-full shadow hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 transition duration-300">Logout</Link>
               </>
             ) : (
@@ -73,3 +82,4 @@ export default function Header() {
     </header>
   );
 }
+
