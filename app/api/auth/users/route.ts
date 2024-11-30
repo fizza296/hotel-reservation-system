@@ -1,23 +1,16 @@
-// pages/api/users/route.ts
 import { NextResponse } from 'next/server';
-import db from '../../../../db';  // Adjust path as needed
+import db from '../../../../db';
 import { RowDataPacket } from 'mysql2';
 
 export async function GET() {
   try {
-    // Query the database to retrieve all users
     const [users] = await db.promise().query<RowDataPacket[]>(
-      `SELECT name, email FROM users`
+      `SELECT user_id, username, email FROM Users`
     );
 
-    // If no users found, return an appropriate message
-    if (users.length === 0) {
-      return NextResponse.json({ message: 'No users found' }, { status: 404 });
-    }
-
-    // Return the list of users
-    return NextResponse.json(users);
+    return NextResponse.json(users, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Server error', error: (error as Error).message }, { status: 500 });
+    console.error('Error fetching users:', error);
+    return NextResponse.json({ message: 'Error fetching users', error: (error as Error).message }, { status: 500 });
   }
 }

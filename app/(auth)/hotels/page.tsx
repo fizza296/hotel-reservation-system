@@ -8,7 +8,7 @@ type Hotel = {
   name: string;
   description: string;
   image_link: string;
-  rating: number; // Add rating property
+  rating: number;
 };
 
 export default function HotelsPage() {
@@ -19,11 +19,18 @@ export default function HotelsPage() {
   useEffect(() => {
     async function fetchHotels() {
       try {
-        const res = await fetch("/api/auth/hotels");
+        const res = await fetch("/api/auth/get_hotels");
         const data = await res.json();
-        setHotels(data);
+
+        if (Array.isArray(data)) {
+          setHotels(data);
+        } else {
+          console.error("Unexpected data format:", data);
+          setHotels([]);
+        }
       } catch (error) {
         console.error("Error fetching hotels:", error);
+        setHotels([]);
       } finally {
         setLoading(false);
       }
@@ -34,6 +41,10 @@ export default function HotelsPage() {
 
   if (loading) {
     return <div>Loading hotels...</div>;
+  }
+
+  if (hotels.length === 0) {
+    return <div>No hotels available.</div>;
   }
 
   const handleBookNow = (hotelId: number) => {
