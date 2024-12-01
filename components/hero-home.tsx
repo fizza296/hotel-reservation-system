@@ -2,10 +2,10 @@ import Image from "next/image";
 
 export default function HeroHome() {
   const hotels = [
-    { id: 1, name: "Hotel Sunshine", imageSrc: "/images/hotel-01.jpeg", description: "Luxurious comfort with sea views." },
-    { id: 2, name: "Mountain Escape", imageSrc: "/images/hotel-02.jpeg", description: "A perfect mountain retreat." },
-    { id: 3, name: "Urban Hotel Central", imageSrc: "/images/hotel-03.jpeg", description: "Experience the heart of the city." },
-    { id: 4, name: "Beachfront Villa", imageSrc: "/images/hotel-04.jpeg", description: "Your private beach house." },
+    { id: 1, name: "Mövenpick", imageSrc: "/images/image.png", description: "Luxurious comfort with beautiful views." },
+    { id: 2, name: "Pearl Continental", imageSrc: "/images/image2.jpg", description: "A perfect comfort with modern rooms." },
+    { id: 3, name: "Marriott Hotel", imageSrc: "/images/image3.jpg", description: "Experience the heart of the city." },
+    { id: 4, name: "Beach Luxury", imageSrc: "/images/image4.jpg", description: "Your private outdoor pool, spa and fitness center" },
   ];
 
   return (
@@ -35,21 +35,6 @@ export default function HeroHome() {
                   className="py-2 px-4 w-48 sm:w-64"
                 />
               </div>
-              <input
-                type="date"
-                placeholder="Check-in date"
-                className="w-40 sm:w-56 py-2 px-4 border rounded-lg"
-              />
-              <input
-                type="date"
-                placeholder="Check-out date"
-                className="w-40 sm:w-56 py-2 px-4 border rounded-lg"
-              />
-              <input
-                type="number"
-                placeholder="Number of adults"
-                className="w-32 sm:w-40 py-2 px-4 border rounded-lg"
-              />
               <button
                 type="submit"
                 className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2 px-6"

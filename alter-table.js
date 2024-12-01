@@ -1,10 +1,10 @@
 const connection = require('./db');
 
-// Create a table named 'users'
-const createTableQuery = `
-  ALTER TABLE Hotels
-ADD COLUMN image_link varchar(255);
 
+const createTableQuery = `
+  UPDATE Users
+SET Admin_permission = 'yes'
+WHERE username = 'Admin';
 `;
 
 connection.query(createTableQuery, (err, results) => {
