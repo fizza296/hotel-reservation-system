@@ -21,7 +21,7 @@ export default function Header() {
       try {
         const response = await fetch('/api/auth/session');
         const data: SessionInfo = await response.json();
-        
+
         if (response.ok && data.isLoggedIn) {
           setIsLoggedIn(true);
           setUserName(data.name ?? null);
@@ -42,6 +42,20 @@ export default function Header() {
     fetchSessionInfo();
   }, []);
 
+  // Function to handle logout using POST request
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/signout', { method: 'POST' });
+      if (response.ok) {
+        window.location.href = '/'; // Redirect to sign-in page after logout
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
   return (
     <header className="fixed top-0 z-50 w-full bg-white shadow-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -50,10 +64,26 @@ export default function Header() {
             <Logo />
             <nav className="ml-10">
               <ul className="flex space-x-4">
-                <li><Link href="/" className="flex items-center text-gray-700 hover:text-white hover:bg-blue-500 rounded-full px-4 py-2 transition duration-300"><HomeIcon className="h-5 w-5 mr-2" aria-hidden="true" />Home</Link></li>
-                <li><Link href="/hotels" className="flex items-center text-gray-700 hover:text-white hover:bg-blue-500 rounded-full px-4 py-2 transition duration-300"><CollectionIcon className="h-5 w-5 mr-2" aria-hidden="true" />Hotels</Link></li>
-                <li><Link href="/about" className="flex items-center text-gray-700 hover:text-white hover:bg-blue-500 rounded-full px-4 py-2 transition duration-300"><InformationCircleIcon className="h-5 w-5 mr-2" aria-hidden="true" />About Us</Link></li>
-                <li><Link href="/contact" className="flex items-center text-gray-700 hover:text-white hover:bg-blue-500 rounded-full px-4 py-2 transition duration-300"><PhoneIcon className="h-5 w-5 mr-2" aria-hidden="true" />Contact</Link></li>
+                <li>
+                  <Link href="/" className="flex items-center text-gray-700 hover:text-white hover:bg-blue-500 rounded-full px-4 py-2 transition duration-300">
+                    <HomeIcon className="h-5 w-5 mr-2" aria-hidden="true" />Home
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/hotels" className="flex items-center text-gray-700 hover:text-white hover:bg-blue-500 rounded-full px-4 py-2 transition duration-300">
+                    <CollectionIcon className="h-5 w-5 mr-2" aria-hidden="true" />Hotels
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="flex items-center text-gray-700 hover:text-white hover:bg-blue-500 rounded-full px-4 py-2 transition duration-300">
+                    <InformationCircleIcon className="h-5 w-5 mr-2" aria-hidden="true" />About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="flex items-center text-gray-700 hover:text-white hover:bg-blue-500 rounded-full px-4 py-2 transition duration-300">
+                    <PhoneIcon className="h-5 w-5 mr-2" aria-hidden="true" />Contact
+                  </Link>
+                </li>
               </ul>
             </nav>
           </div>
@@ -64,16 +94,29 @@ export default function Header() {
                   Hello, {userName}
                 </span>
                 {isAdmin ? (
-                  <Link href="/admin_settings" className="sm:block bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-full transition duration-300">Admin Settings</Link>
+                  <Link href="/admin_settings" className="sm:block bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-full transition duration-300">
+                    Admin Settings
+                  </Link>
                 ) : (
-                  <Link href="/user_bookings" className="sm:block bg-yellow-300 hover:bg-yellow-400 text-black py-2 px-4 rounded-full transition duration-300">My Bookings</Link>
+                  <Link href="/user_bookings" className="sm:block bg-yellow-300 hover:bg-yellow-400 text-black py-2 px-4 rounded-full transition duration-300">
+                    My Bookings
+                  </Link>
                 )}
-                <Link href="/api/auth/signout" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-full shadow hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 transition duration-300">Logout</Link>
+                <button
+                  onClick={handleLogout}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-full shadow hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 transition duration-300"
+                >
+                  Logout
+                </button>
               </>
             ) : (
               <>
-                <Link href="/signin" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-full shadow hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 transition duration-300">Login</Link>
-                <Link href="/signup" className="bg-gradient-to-r from-gray-700 to-gray-800 text-white py-2 px-4 rounded-full shadow hover:bg-gradient-to-r hover:from-gray-800 hover:to-gray-900 transition duration-300">Register</Link>
+                <Link href="/signin" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-full shadow hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 transition duration-300">
+                  Login
+                </Link>
+                <Link href="/signup" className="bg-gradient-to-r from-gray-700 to-gray-800 text-white py-2 px-4 rounded-full shadow hover:bg-gradient-to-r hover:from-gray-800 hover:to-gray-900 transition duration-300">
+                  Register
+                </Link>
               </>
             )}
           </div>
@@ -82,4 +125,3 @@ export default function Header() {
     </header>
   );
 }
-
