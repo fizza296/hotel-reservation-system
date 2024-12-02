@@ -1,6 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faWifi,
+  faTv,
+  faSnowflake,
+  faUtensils,
+  faCar,
+  faSwimmingPool,
+  faBinoculars,
+  faHouseUser,
+  faQuestionCircle,
+} from "@fortawesome/free-solid-svg-icons";
 
 type Room = {
   room_id: number;
@@ -58,6 +70,33 @@ export default function RoomsPage() {
     router.push(`/bookings?hotel_id=${hotelId}&room_id=${roomId}`);
   };
 
+  const renderAmenities = (amenities: string) => {
+    const amenitiesList = amenities.split(", ");
+    const icons: Record<string, JSX.Element> = {
+      wifi: <FontAwesomeIcon icon={faWifi} />,
+      tv: <FontAwesomeIcon icon={faTv} />,
+      ac: <FontAwesomeIcon icon={faSnowflake} />,
+      "mini fridge": <FontAwesomeIcon icon={faUtensils} />,
+      parking: <FontAwesomeIcon icon={faCar} />,
+      pool: <FontAwesomeIcon icon={faSwimmingPool} />,
+      view: <FontAwesomeIcon icon={faBinoculars} />,
+      balcony: <FontAwesomeIcon icon={faHouseUser} />,
+    };
+
+    return (
+      <div className="amenities">
+        {amenitiesList.map((amenity) => (
+          <div key={amenity} className="amenity">
+            {icons[amenity.toLowerCase()] || (
+              <FontAwesomeIcon icon={faQuestionCircle} />
+            )}
+            <span className="amenity-text">{amenity}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (loading) {
     return <div>Loading rooms and reviews...</div>;
   }
@@ -73,27 +112,33 @@ export default function RoomsPage() {
       <div className="rooms-section">
         <h2>Rooms</h2>
         {rooms.length > 0 ? (
-          rooms.map((room) => (
-            <div key={room.room_id} className="room-card">
-              <h3 className="room-type">Room Type: {room.room_type}</h3>
-              <p className="room-amenities">Amenities: {room.amenities}</p>
-              <p
-                className={`room-status ${
-                  room.is_available ? "available" : "unavailable"
-                }`}
-              >
-                Status: {room.is_available ? "Available" : "Unavailable"}
-              </p>
-              {room.is_available && (
-                <button
-                  className="book-room-button"
-                  onClick={() => goToBookingPage(room.room_id)}
-                >
-                  Book Room
-                </button>
-              )}
-            </div>
-          ))
+          <div className="room-container">
+            {rooms.map((room) => (
+              <div key={room.room_id} className="room-card">
+                <div className="room-header">
+                  <h3 className="room-type">{room.room_type}</h3>
+                  <p
+                    className={`room-status ${
+                      room.is_available ? "available" : "unavailable"
+                    }`}
+                  >
+                    {room.is_available ? "Available" : "Unavailable"}
+                  </p>
+                </div>
+                <div className="room-body">
+                  {renderAmenities(room.amenities)}
+                </div>
+                {room.is_available && (
+                  <button
+                    className="book-room-button"
+                    onClick={() => goToBookingPage(room.room_id)}
+                  >
+                    Book Room
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         ) : (
           <p>No rooms available for this hotel.</p>
         )}
@@ -115,103 +160,139 @@ export default function RoomsPage() {
       </div>
 
       {/* Styles */}
-      <style jsx>{`
-        .page-container {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          padding: 20px;
-          background-color: #f5f5f5;
-        }
+    <style jsx>{`
+  .page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background-color: #f5f5f5;
+  }
 
-        .hotel-header {
-          text-align: center;
-          margin-bottom: 20px;
-        }
+  .hotel-header h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #003e75;
+    text-align: center;
+    letter-spacing: 1.5px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
 
-        .hotel-header h1 {
-          font-size: 2rem;
-          color: #0070f3;
-        }
+  .rooms-section,
+  .reviews-section {
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 
-        .rooms-section,
-        .reviews-section {
-          padding: 20px;
-          background: #fff;
-          border-radius: 10px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+  .room-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
 
-        h2 {
-          margin-bottom: 20px;
-          font-size: 1.5rem;
-          color: #333;
-        }
+  .room-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), inset 0 1px 2px #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
 
-        .room-card {
-          background: #f9f9f9;
-          border-radius: 10px;
-          padding: 15px;
-          margin-bottom: 20px;
-        }
+  .room-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
 
-        .room-type {
-          font-size: 1.2rem;
-          font-weight: bold;
-          margin-bottom: 10px;
-        }
+  .room-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
 
-        .room-amenities {
-          margin-bottom: 10px;
-          color: #555;
-        }
+  .room-type {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+  }
 
-        .room-status {
-          margin-bottom: 15px;
-          padding: 5px 10px;
-          border-radius: 5px;
-          display: inline-block;
-          font-weight: bold;
-          color: #fff;
-        }
+  .room-status {
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff;
+  }
 
-        .available {
-          background-color: #4caf50;
-        }
+  .available {
+    background-color: #4caf50;
+  }
 
-        .unavailable {
-          background-color: #f44336;
-        }
+  .unavailable {
+    background-color: #f44336;
+  }
 
-        .book-room-button {
-          padding: 10px 20px;
-          background-color: #0070f3;
-          color: #fff;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-        }
+  .room-body {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+  }
 
-        .book-room-button:hover {
-          background-color: #005bb5;
-        }
+  .amenity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-        .review {
-          background-color: #e9e9e9;
-          padding: 10px;
-          border-radius: 5px;
-          margin-bottom: 10px;
-        }
+  .amenity-text {
+    font-size: 0.9rem;
+    color: #555;
+  }
 
-        .review small {
-          display: block;
-          margin-top: 5px;
-          color: #777;
-        }
-      `}</style>
+  .book-room-button {
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #0070f3, #005bb5);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .book-room-button:hover {
+    transform: scale(1.1);
+    background: linear-gradient(90deg, #005bb5, #003e75);
+  }
+
+  .review {
+    background: linear-gradient(145deg, #f9f9f9, #e9e9e9);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), inset 0 1px 2px #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .review p {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 5px;
+  }
+
+  .review small {
+    font-size: 0.85rem;
+    color: #555;
+  }
+`}</style>
+
     </div>
   );
 }
-
-
