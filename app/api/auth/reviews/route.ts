@@ -13,9 +13,10 @@ export async function GET(request: Request) {
   try {
     // Fetch reviews for the hotel
     const [reviews] = await db.promise().query<RowDataPacket[]>(`
-      SELECT review_text, created_at 
-      FROM Reviews 
-      WHERE hotel_id = ?
+       SELECT review_id, hotel_id, user_id, rating, review_text, created_at 
+        FROM Reviews 
+        WHERE hotel_id = ?
+        ORDER BY created_at DESC
     `, [hotelId]);
 
     return NextResponse.json(reviews, { status: 200 });

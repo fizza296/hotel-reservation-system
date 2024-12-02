@@ -8,7 +8,7 @@ import Toast from "../../../components/toast";
 type Hotel = {
   hotel_id: number;
   name: string;
-  description: string; // Ensured to be a string
+  description: string;
   image_link: string;
   rating: number;
 };
@@ -18,7 +18,7 @@ type User = {
   username: string;
   email: string;
   phone_number?: string;
-  password?: string; // Added password field
+  password?: string;
 };
 
 type Review = {
@@ -27,6 +27,7 @@ type Review = {
   user_id: number;
   rating: number;
   review_text: string;
+  created_at: string; // Assuming you have a created_at field
 };
 
 export default function AdminPage() {
@@ -35,7 +36,7 @@ export default function AdminPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [showHotelModal, setShowHotelModal] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false); // New state for user modal
+  const [showUserModal, setShowUserModal] = useState(false);
   const [newHotel, setNewHotel] = useState<Partial<Hotel>>({
     name: "",
     description: "",
@@ -46,12 +47,17 @@ export default function AdminPage() {
     username: "",
     email: "",
     phone_number: "",
-    password: "", // Ensure password is included
+    password: "",
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  // New state for toast
+  // New states for handling selected hotel and its reviews
+  const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
+  const [hotelReviews, setHotelReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+
+  // Toast state
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   // Helper functions to show toasts
@@ -69,10 +75,9 @@ export default function AdminPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [hotelRes, userRes, reviewRes] = await Promise.all([
+        const [hotelRes, userRes] = await Promise.all([
           fetch(`/api/auth/get_hotels`).then((res) => res.json()),
           fetch(`/api/auth/users`).then((res) => res.json()),
-          fetch(`/api/auth/reviews`).then((res) => res.json()),
         ]);
 
         if (Array.isArray(hotelRes)) {
@@ -84,7 +89,6 @@ export default function AdminPage() {
           setHotels(sanitizedHotels);
         }
         if (Array.isArray(userRes)) setUsers(userRes);
-        if (Array.isArray(reviewRes)) setReviews(reviewRes);
       } catch (error) {
         showError("Error fetching data.");
       } finally {
@@ -94,6 +98,27 @@ export default function AdminPage() {
 
     fetchData();
   }, []);
+
+  // Function to fetch reviews for a specific hotel
+  const fetchReviews = async (hotelId: number) => {
+    setReviewsLoading(true);
+    try {
+      const res = await fetch(`/api/auth/reviews?hotel_id=${hotelId}`);
+      if (res.ok) {
+        const data: Review[] = await res.json();
+        setHotelReviews(data);
+      } else {
+        const errorText = await res.text();
+        console.error("Fetch Reviews Error:", errorText);
+        showError("Failed to fetch reviews.");
+      }
+    } catch (error) {
+      console.error("Fetch Reviews Exception:", error);
+      showError("Error fetching reviews.");
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
 
   const handleHotelInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -119,22 +144,22 @@ export default function AdminPage() {
       showError("Please select an image to upload.");
       return;
     }
-  
+
     const file = selectedImage;
     const fileName = `${Date.now()}-${encodeURIComponent(file.name)}`;
     const region = "us-east-1"; // Update to your bucket's region
     const s3BucketUrl = `https://my-hotel-images-public.s3.${region}.amazonaws.com/${fileName}`;
-  
+
     try {
       setUploading(true);
       const res = await fetch(s3BucketUrl, {
         method: "PUT",
         headers: {
-          "Content-Type": file.type, // Remove x-amz-acl header
+          "Content-Type": file.type,
         },
         body: file,
       });
-  
+
       if (res.ok) {
         setNewHotel((prev) => ({ ...prev, image_link: s3BucketUrl }));
         showSuccess("Image uploaded successfully.");
@@ -232,6 +257,11 @@ export default function AdminPage() {
 
       if (res.ok) {
         setHotels(hotels.filter((hotel) => hotel.hotel_id !== hotelId));
+        // If the deleted hotel is selected, clear the selection
+        if (selectedHotel && selectedHotel.hotel_id === hotelId) {
+          setSelectedHotel(null);
+          setHotelReviews([]);
+        }
         showSuccess("Hotel deleted successfully.");
         console.log("Deleted Hotel ID:", hotelId);
       } else {
@@ -270,35 +300,38 @@ export default function AdminPage() {
   };
 
   const handleDeleteReview = async (reviewId: number) => {
+    // Optional: Add a confirmation prompt to prevent accidental deletions
+    if (!confirm('Are you sure you want to delete this review?')) return;
+  
     console.log("Deleting Review ID:", reviewId);
     try {
-      const res = await fetch(`/api/auth/delete_review`, {
+      // Send DELETE request with review_id as a query parameter
+      const res = await fetch(`/api/auth/delete_review?review_id=${reviewId}`, {
         method: "DELETE",
-        body: JSON.stringify({ review_id: reviewId }),
-        headers: { "Content-Type": "application/json" },
       });
-
+  
       if (res.ok) {
-        setReviews(reviews.filter((review) => review.review_id !== reviewId));
+        // Remove the deleted review from the state
+        setHotelReviews(hotelReviews.filter((review) => review.review_id !== reviewId));
         showSuccess("Review deleted successfully.");
         console.log("Deleted Review ID:", reviewId);
       } else {
-        const errorText = await res.text();
-        console.error("Delete Review Error:", errorText);
-        showError("Failed to delete review.");
+        // Parse the error response
+        const errorData = await res.json();
+        console.error("Delete Review Error:", errorData.message);
+        showError(`Failed to delete review: ${errorData.message}`);
       }
     } catch (error) {
       console.error("Delete Review Exception:", error);
       showError("Error deleting review.");
     }
   };
+  
 
   if (loading)
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-lg font-semibold text-gray-700">
-          Loading data...
-        </div>
+        <div className="text-lg font-semibold text-gray-700">Loading data...</div>
       </div>
     );
 
@@ -325,11 +358,7 @@ export default function AdminPage() {
 
       {/* Toast Notification */}
       {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
       )}
 
       {/* Modal for Add Hotel */}
@@ -516,7 +545,18 @@ export default function AdminPage() {
                 {hotels.map((hotel) => (
                   <tr key={hotel.hotel_id} className="hover:bg-gray-100">
                     <td className="py-2 px-4 border-b text-center">{hotel.hotel_id}</td>
-                    <td className="py-2 px-4 border-b">{hotel.name}</td>
+                    <td className="py-2 px-4 border-b cursor-pointer text-blue-600 hover:underline" onClick={() => {
+                      if (selectedHotel && selectedHotel.hotel_id === hotel.hotel_id) {
+                        // If already selected, deselect
+                        setSelectedHotel(null);
+                        setHotelReviews([]);
+                      } else {
+                        setSelectedHotel(hotel);
+                        fetchReviews(hotel.hotel_id);
+                      }
+                    }}>
+                      {hotel.name}
+                    </td>
                     <td className="py-2 px-4 border-b">
                       {hotel.description.length > 100
                         ? `${hotel.description.substring(0, 100)}...`
@@ -544,6 +584,65 @@ export default function AdminPage() {
             </table>
           </div>
         </section>
+
+        {/* Selected Hotel's Reviews */}
+        {selectedHotel && (
+          <section>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Reviews for "{selectedHotel.name}"
+            </h2>
+            {reviewsLoading ? (
+              <div className="text-center text-gray-700">Loading reviews...</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border">
+                  <thead>
+                    <tr>
+                      <th className="py-2 px-4 border-b">ID</th>
+                      <th className="py-2 px-4 border-b">User ID</th>
+                      <th className="py-2 px-4 border-b">Rating</th>
+                      <th className="py-2 px-4 border-b">Review Text</th>
+                      <th className="py-2 px-4 border-b">Created At</th>
+                      <th className="py-2 px-4 border-b">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {hotelReviews.map((review) => (
+                      <tr key={review.review_id} className="hover:bg-gray-100">
+                        <td className="py-2 px-4 border-b text-center">{review.review_id}</td>
+                        <td className="py-2 px-4 border-b text-center">{review.user_id}</td>
+                        <td className="py-2 px-4 border-b text-center">{review.rating}</td>
+                        <td className="py-2 px-4 border-b">
+                          {review.review_text.length > 100
+                            ? `${review.review_text.substring(0, 100)}...`
+                            : review.review_text}
+                        </td>
+                        <td className="py-2 px-4 border-b text-center">
+                          {new Date(review.created_at).toLocaleString()}
+                        </td>
+                        <td className="py-2 px-4 border-b text-center">
+                          <button
+                            onClick={() => handleDeleteReview(review.review_id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {hotelReviews.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="text-center py-4">
+                          No reviews available for this hotel.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* List of Users */}
         <section>
@@ -582,55 +681,6 @@ export default function AdminPage() {
                   <tr>
                     <td colSpan={5} className="text-center py-4">
                       No users available.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* List of Reviews */}
-        <section>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Reviews</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b">ID</th>
-                  <th className="py-2 px-4 border-b">Hotel ID</th>
-                  <th className="py-2 px-4 border-b">User ID</th>
-                  <th className="py-2 px-4 border-b">Rating</th>
-                  <th className="py-2 px-4 border-b">Review Text</th>
-                  <th className="py-2 px-4 border-b">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reviews.map((review) => (
-                  <tr key={review.review_id} className="hover:bg-gray-100">
-                    <td className="py-2 px-4 border-b text-center">{review.review_id}</td>
-                    <td className="py-2 px-4 border-b text-center">{review.hotel_id}</td>
-                    <td className="py-2 px-4 border-b text-center">{review.user_id}</td>
-                    <td className="py-2 px-4 border-b text-center">{review.rating}</td>
-                    <td className="py-2 px-4 border-b">
-                      {review.review_text.length > 100
-                        ? `${review.review_text.substring(0, 100)}...`
-                        : review.review_text}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      <button
-                        onClick={() => handleDeleteReview(review.review_id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {reviews.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="text-center py-4">
-                      No reviews available.
                     </td>
                   </tr>
                 )}
