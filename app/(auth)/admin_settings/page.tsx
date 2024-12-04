@@ -37,6 +37,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [showHotelModal, setShowHotelModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [showReviewsModal, setShowReviewsModal] = useState(false); // New state for reviews modal
   const [newHotel, setNewHotel] = useState<Partial<Hotel>>({
     name: "",
     description: "",
@@ -326,7 +327,20 @@ export default function AdminPage() {
       showError("Error deleting review.");
     }
   };
-  
+
+  // Handler for clicking on a hotel to show reviews in modal
+  const handleHotelClick = (hotel: Hotel) => {
+    setSelectedHotel(hotel);
+    setShowReviewsModal(true);
+    fetchReviews(hotel.hotel_id);
+  };
+
+  // Handler to close the reviews modal
+  const closeReviewsModal = () => {
+    setShowReviewsModal(false);
+    setSelectedHotel(null);
+    setHotelReviews([]);
+  };
 
   if (loading)
     return (
@@ -525,72 +539,19 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Main Content Layout */}
-      <div className="grid grid-cols-1 gap-8">
-        {/* List of Hotels */}
-        <section>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Hotels</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b">ID</th>
-                  <th className="py-2 px-4 border-b">Name</th>
-                  <th className="py-2 px-4 border-b">Description</th>
-                  <th className="py-2 px-4 border-b">Rating</th>
-                  <th className="py-2 px-4 border-b">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {hotels.map((hotel) => (
-                  <tr key={hotel.hotel_id} className="hover:bg-gray-100">
-                    <td className="py-2 px-4 border-b text-center">{hotel.hotel_id}</td>
-                    <td className="py-2 px-4 border-b cursor-pointer text-blue-600 hover:underline" onClick={() => {
-                      if (selectedHotel && selectedHotel.hotel_id === hotel.hotel_id) {
-                        // If already selected, deselect
-                        setSelectedHotel(null);
-                        setHotelReviews([]);
-                      } else {
-                        setSelectedHotel(hotel);
-                        fetchReviews(hotel.hotel_id);
-                      }
-                    }}>
-                      {hotel.name}
-                    </td>
-                    <td className="py-2 px-4 border-b">
-                      {hotel.description.length > 100
-                        ? `${hotel.description.substring(0, 100)}...`
-                        : hotel.description || "No description provided."}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">{hotel.rating}</td>
-                    <td className="py-2 px-4 border-b text-center">
-                      <button
-                        onClick={() => handleDeleteHotel(hotel.hotel_id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {hotels.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="text-center py-4">
-                      No hotels available.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* Selected Hotel's Reviews */}
-        {selectedHotel && (
-          <section>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              Reviews for "{selectedHotel.name}"
-            </h2>
+      {/* Modal for Reviews */}
+      {showReviewsModal && selectedHotel && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full overflow-y-auto max-h-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Reviews for "{selectedHotel.name}"</h2>
+              <button
+                onClick={closeReviewsModal}
+                className="text-gray-500 hover:text-gray-700 transition"
+              >
+                ✖️
+              </button>
+            </div>
             {reviewsLoading ? (
               <div className="text-center text-gray-700">Loading reviews...</div>
             ) : (
@@ -641,8 +602,63 @@ export default function AdminPage() {
                 </table>
               </div>
             )}
-          </section>
-        )}
+          </div>
+        </div>
+      )}
+
+      {/* Main Content Layout */}
+      <div className="grid grid-cols-1 gap-8">
+        {/* List of Hotels */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Hotels</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b">ID</th>
+                  <th className="py-2 px-4 border-b">Name</th>
+                  <th className="py-2 px-4 border-b">Description</th>
+                  <th className="py-2 px-4 border-b">Rating</th>
+                  <th className="py-2 px-4 border-b">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {hotels.map((hotel) => (
+                  <tr key={hotel.hotel_id} className="hover:bg-gray-100">
+                    <td className="py-2 px-4 border-b text-center">{hotel.hotel_id}</td>
+                    <td
+                      className="py-2 px-4 border-b cursor-pointer text-blue-600 hover:underline"
+                      onClick={() => handleHotelClick(hotel)} // Updated click handler
+                    >
+                      {hotel.name}
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      {hotel.description.length > 100
+                        ? `${hotel.description.substring(0, 100)}...`
+                        : hotel.description || "No description provided."}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">{hotel.rating}</td>
+                    <td className="py-2 px-4 border-b text-center">
+                      <button
+                        onClick={() => handleDeleteHotel(hotel.hotel_id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {hotels.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="text-center py-4">
+                      No hotels available.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         {/* List of Users */}
         <section>
