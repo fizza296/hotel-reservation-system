@@ -52,6 +52,9 @@ export default function RoomsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [hotelId, setHotelId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null); // Added userId state
+  const [newReview, setNewReview] = useState({ review_text: "", rating: 0 });
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
   const fetchRoomsAndReviews = async () => {
@@ -79,7 +82,18 @@ export default function RoomsPage() {
   };
 
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("hotel_id");
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("hotel_id");
+    let uid = params.get("user_id"); // Extract user_id from URL
+
+    if (!uid) {
+      uid = "1"; // Set a default user_id for testing
+      console.warn("user_id not found in URL. Using default user_id = 1 for testing.");
+      setUserId(uid);
+    } else {
+      setUserId(uid);
+    }
+
     setHotelId(id);
   }, []);
 
@@ -116,6 +130,96 @@ export default function RoomsPage() {
             <span className="amenity-text">{amenity}</span>
           </div>
         ))}
+      </div>
+    );
+  };
+
+  const handleReviewSubmit = async () => {
+    if (!userId) {
+      setErrorMessage("User ID is missing. Please provide a valid user ID.");
+      return;
+    }
+
+    if (!newReview.review_text || newReview.rating === 0) {
+      setErrorMessage("Please provide a review text and rating.");
+      return;
+    }
+
+    // Validate that userId is a number
+    const parsedUserId = parseInt(userId, 10);
+    if (isNaN(parsedUserId)) {
+      setErrorMessage("Invalid User ID format.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/auth/rooms`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ hotel_id: hotelId, user_id: parsedUserId, ...newReview }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || `Error: ${res.status}`);
+      }
+
+      const newReviewResponse: Review = await res.json();
+      setReviews([newReviewResponse, ...reviews]);
+      setNewReview({ review_text: "", rating: 0 });
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      setErrorMessage("An error occurred. Please try again.");
+    }
+  };
+
+  const renderReviewForm = () => {
+    if (!userId) {
+      return (
+        <div className="add-review-section">
+          <h3>Please provide a valid User ID to add a review</h3>
+          {/* Optional: Add an input field to allow manual entry */}
+          <input
+            type="number"
+            placeholder="Enter your User ID"
+            value={userId || ""}
+            onChange={(e) => setUserId(e.target.value)}
+            className="user-id-input"
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="add-review-section">
+        <h3>Add a Review</h3>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        <textarea
+          placeholder="Write your review..."
+          value={newReview.review_text}
+          onChange={(e) =>
+            setNewReview((prev) => ({ ...prev, review_text: e.target.value }))
+          }
+          className="review-input"
+        />
+        <div className="rating-input">
+          {[...Array(5)].map((_, i) => (
+            <FontAwesomeIcon
+              key={i}
+              icon={faStar}
+              color={i < newReview.rating ? "#FFD700" : "#E0E0E0"}
+              onClick={() => setNewReview((prev) => ({ ...prev, rating: i + 1 }))}
+              className="rating-icon"
+              style={{ cursor: "pointer" }}
+            />
+          ))}
+        </div>
+        <button onClick={handleReviewSubmit} className="submit-review-button">
+          Submit Review
+        </button>
       </div>
     );
   };
@@ -194,9 +298,7 @@ export default function RoomsPage() {
                     {room.is_available ? "Available" : "Unavailable"}
                   </p>
                 </div>
-                <div className="room-body">
-                  {renderAmenities(room.amenities)}
-                </div>
+                <div className="room-body">{renderAmenities(room.amenities)}</div>
                 {room.is_available && (
                   <button
                     className="book-room-button"
@@ -230,7 +332,7 @@ export default function RoomsPage() {
                   <div className="reviewer-info">
                     <p className="reviewer-name">{review.reviewer_name}</p>
                     <div className="review-rating">
-                      {[...Array(5)].map((star, i) => (
+                      {[...Array(5)].map((_, i) => (
                         <FontAwesomeIcon
                           key={i}
                           icon={faStar}
@@ -251,6 +353,9 @@ export default function RoomsPage() {
         ) : (
           <p>No reviews available for this hotel.</p>
         )}
+
+        {/* Add Review Section */}
+        {renderReviewForm()}
       </div>
 
       {/* Styles */}
@@ -261,6 +366,7 @@ export default function RoomsPage() {
           gap: 30px;
           padding: 20px;
           background-color: #f5f5f5;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         /* Hotel Banner */
@@ -530,6 +636,7 @@ export default function RoomsPage() {
           font-weight: bold;
           color: #003e75;
           margin-bottom: 5px;
+          font-size: 1.1rem;
         }
 
         .review-rating {
@@ -559,6 +666,86 @@ export default function RoomsPage() {
         .review-footer small {
           font-size: 0.85rem;
           color: #555;
+        }
+
+        /* Add Review Section */
+        .add-review-section {
+          margin-top: 30px;
+          padding: 20px;
+          background: #f0f0f0;
+          border-radius: 10px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .add-review-section h3 {
+          font-size: 1.8rem;
+          color: #003e75;
+          margin-bottom: 15px;
+          text-align: center;
+        }
+
+        .user-id-input {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 1rem;
+          margin-top: 10px;
+        }
+
+        .review-input {
+          width: 100%;
+          min-height: 150px;
+          padding: 15px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          resize: vertical;
+          font-size: 1rem;
+          margin-bottom: 15px;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .rating-input {
+          display: flex;
+          gap: 5px;
+          margin-bottom: 15px;
+          justify-content: center;
+        }
+
+        .rating-icon {
+          font-size: 1.8rem;
+          transition: transform 0.2s ease;
+        }
+
+        .rating-icon:hover {
+          transform: scale(1.2);
+        }
+
+        .submit-review-button {
+          display: block;
+          width: 100%;
+          padding: 12px 0;
+          background: linear-gradient(90deg, #28a745, #218838);
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 1.1rem;
+          transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .submit-review-button:hover {
+          background: linear-gradient(90deg, #218838, #1e7e34);
+          transform: scale(1.02);
+        }
+
+        .error-message {
+          color: #dc3545;
+          margin-bottom: 10px;
+          text-align: center;
+          font-size: 1rem;
         }
 
         /* Loading and Error States */
