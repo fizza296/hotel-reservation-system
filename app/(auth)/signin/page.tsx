@@ -1,67 +1,99 @@
 "use client";
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { setCookie } from 'nookies';
+
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { setCookie } from "nookies";
 
 export default function SignIn() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
-      setIsLoading(false);
 
       let data;
       try {
         data = await response.json();
       } catch (jsonError) {
         const text = await response.text();
-        console.error('Raw response text:', text);
-        throw new Error('Response is not valid JSON');
+        console.error("Raw response text:", text);
+        throw new Error("Response is not valid JSON");
       }
+
+      setIsLoading(false);
 
       if (response.ok) {
-        const userId = data.user_id;  // assuming 'user_id' is returned in response
+        const userId = data.user_id; // assuming 'user_id' is returned in response
 
-        // Set the cookie as "session" with value "SESSION_<user_id>"
-        setCookie(null, 'user_id', userId, {
+        setCookie(null, "user_id", userId, {
           maxAge: 30 * 24 * 60 * 60, // 30 days
-          path: '/',                  // Accessible across the entire site
-          sameSite: 'lax',            // Allows the cookie to be sent with same-site requests
-          secure: process.env.NODE_ENV === 'production', // Secure in production
-        }
-       );
+          path: "/", // Accessible across the entire site
+          sameSite: "lax", // Allows the cookie to be sent with same-site requests
+          secure: process.env.NODE_ENV === "production", // Secure in production
+        });
 
-        setSuccessMessage('Signed in successfully!');
-        setErrorMessage('');
-        router.push('/');  // Redirect to home page
+        setSuccessMessage("Signed in successfully!");
+        router.push("/");
       } else {
-        setErrorMessage(data.message || 'Invalid email or password');
-        setSuccessMessage('');
+        setErrorMessage(data.message || "Invalid email or password");
       }
-    } catch (error: unknown) {
-      setErrorMessage('An error occurred while signing in. Please try again.');
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("An error occurred while signing in. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
- 
+
+  // Loader Component
+  if (isLoading) {
+    return (
+      <div className="loader-container">
+        <div className="spinner"></div>
+        <style jsx>{`
+          .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; // Full screen height
+            background-color: rgba(255, 255, 255, 0.5); // Semi-transparent background
+          }
+          .spinner {
+            border: 6px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 6px solid blue;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="mb-10">
@@ -107,10 +139,10 @@ export default function SignIn() {
         <div className="mt-6">
           <button
             type="submit"
-            className={`btn w-full bg-gradient-to-t from-blue-600 to-blue-500 text-white shadow hover:bg-opacity-80 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className="btn w-full bg-gradient-to-t from-blue-600 to-blue-500 text-white shadow hover:bg-opacity-80"
             disabled={isLoading}
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            Sign In
           </button>
         </div>
       </form>
@@ -123,5 +155,3 @@ export default function SignIn() {
     </>
   );
 }
-
-
