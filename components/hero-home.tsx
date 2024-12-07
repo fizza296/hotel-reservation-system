@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion"; // Import motion
 
 // Define the Hotel interface
 interface Hotel {
@@ -50,14 +51,11 @@ export default function HeroHome() {
       setShowSuggestions(false);
       return;
     }
-
     setIsLoading(true);
-
     // Debounce the API call
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
     }
-
     debounceTimeout.current = setTimeout(() => {
       fetch(`/api/auth/get_areas?query=${encodeURIComponent(location)}`)
         .then((res) => {
@@ -97,7 +95,6 @@ export default function HeroHome() {
         setShowSuggestions(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -125,8 +122,14 @@ export default function HeroHome() {
   };
 
   return (
-    // Set the background to white
-    <section className="relative bg-white pt-28 sm:pt-32 pb-16">
+    // Use motion.section for animating the entire HeroHome section
+    <motion.section
+      className="relative bg-white pt-28 sm:pt-32 pb-16"
+      initial={{ opacity: 0, y: -50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 50 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       {/* Optional: Increased horizontal padding on large screens */}
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
         {/* Hero Content */}
@@ -135,7 +138,8 @@ export default function HeroHome() {
             Find Your Ideal Hotel
           </h1>
           <p className="mx-auto mb-10 text-xl text-gray-700 max-w-2xl">
-            Discover top-rated hotels at the best prices. Book your next stay with us!
+            Discover top-rated hotels at the best prices. Book your next stay
+            with us!
           </p>
           {/* Booking Form */}
           <div
@@ -199,9 +203,17 @@ export default function HeroHome() {
               </div>
               {/* Suggestions Dropdown */}
               {showSuggestions && (
-                <ul className="absolute left-0 right-0 z-20 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <motion.ul
+                  className="absolute left-0 right-0 z-20 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
                   {isLoading ? (
-                    <li className="px-5 py-3 text-center text-gray-500">Loading...</li>
+                    <li className="px-5 py-3 text-center text-gray-500">
+                      Loading...
+                    </li>
                   ) : suggestions.length > 0 ? (
                     suggestions.map((suggestion, index) => (
                       <li
@@ -213,9 +225,11 @@ export default function HeroHome() {
                       </li>
                     ))
                   ) : (
-                    <li className="px-5 py-3 text-center text-gray-500">No suggestions found.</li>
+                    <li className="px-5 py-3 text-center text-gray-500">
+                      No suggestions found.
+                    </li>
                   )}
-                </ul>
+                </motion.ul>
               )}
             </div>
             <button
@@ -230,21 +244,26 @@ export default function HeroHome() {
         {/* Hotels Grid */}
         <div className="mt-20 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
           {hotels.map((hotel) => (
-            <div
+            <motion.div
               key={hotel.id}
               className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 transform hover:scale-105"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <div className="relative h-64">
                 <Image
                   src={hotel.imageSrc}
                   alt={hotel.name}
-                  layout="fill"
-                  objectFit="cover"
+                  fill
+                  style={{ objectFit: "cover" }}
                   className="transform hover:scale-110 transition-transform duration-300"
                 />
               </div>
               <div className="p-6">
-                <h3 className="text-2xl font-semibold text-gray-800">{hotel.name}</h3>
+                <h3 className="text-2xl font-semibold text-gray-800">
+                  {hotel.name}
+                </h3>
                 <p className="mt-3 text-gray-600">{hotel.description}</p>
                 <Link
                   href={{
@@ -256,7 +275,7 @@ export default function HeroHome() {
                   View details &rarr;
                 </Link>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
         {/* View More Button */}
@@ -269,6 +288,6 @@ export default function HeroHome() {
           </Link>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
