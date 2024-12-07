@@ -61,41 +61,7 @@ export default function SignIn() {
       setIsLoading(false);
     }
   };
-  if (loading) {
-    return (
-      <div className="loader-container">
-        <div className="spinner"></div>
-        <style jsx>{`
-          .loader-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 80vh;
-            background-color: #f0f4f8;
-          }
-
-          .spinner {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3b82f6;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1.5s linear infinite;
-          }
-
-          @keyframes spin {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
-          }
-        `}</style>
-      </div>
-    );
-  }
-
+ 
   return (
     <>
       <div className="mb-10">
