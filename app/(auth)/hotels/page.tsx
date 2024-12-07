@@ -223,16 +223,17 @@ export default function HotelsPage() {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .header-section {
-          width: 100%;
-          padding: 60px 20px 40px 20px;
-          background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-          text-align: center;
-          color: #fff;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          position: relative;
-          z-index: 1;
-        }
+      .header-section {
+  position: relative; /* Ensure proper positioning */
+  width: 100%;
+  padding: 20px 20px; /* Maintain compact padding */
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  text-align: center;
+  color: #fff;
+  margin-top: -20px; /* Pulls the section slightly up */
+  margin-bottom: 50px; /* Increased bottom margin to add more space */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds subtle depth */
+}
 
         .page-title {
           font-size: 3rem;
@@ -260,19 +261,21 @@ export default function HotelsPage() {
         }
 
         .filter-section {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 20px;
-          justify-content: center;
-          align-items: center;
-          margin: 0 20px 30px 20px; /* Adjusted margin for spacing */
-          padding: 20px;
-          background-color: #fff;
-          border-radius: 12px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          position: relative;
-          z-index: 2;
-        }
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px; /* New margin to ensure space if needed */
+  margin-bottom: 30px;
+  width: 100%;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 2;
+}
 
         .styled-input {
           padding: 12px 20px;
