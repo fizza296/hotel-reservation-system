@@ -9,6 +9,7 @@ type Hotel = {
   description: string;
   image_link: string;
   rating: number;
+  area: string;
 };
 
 export default function HotelsPage() {
@@ -16,6 +17,7 @@ export default function HotelsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterRating, setFilterRating] = useState(0);
+  const [filterArea, setFilterArea] = useState(""); // New state for area filter
   const router = useRouter();
 
   useEffect(() => {
@@ -100,10 +102,15 @@ export default function HotelsPage() {
     router.push(`/rooms?hotel_id=${hotelId}`);
   };
 
+  // Get unique areas for the area filter dropdown
+  const uniqueAreas = Array.from(new Set(hotels.map((hotel) => hotel.area))).sort();
+
+  // Filter hotels based on the search query, rating, and area
   const filteredHotels = hotels.filter(
     (hotel) =>
       hotel.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (filterRating === 0 || Math.floor(hotel.rating) === filterRating)
+      (filterRating === 0 || Math.floor(hotel.rating) === filterRating) &&
+      (filterArea === "" || hotel.area === filterArea)
   );
 
   return (
@@ -129,6 +136,18 @@ export default function HotelsPage() {
             </option>
           ))}
         </select>
+        <select
+          value={filterArea}
+          onChange={(e) => setFilterArea(e.target.value)}
+          className="area-filter styled-input"
+        >
+          <option value="">All Areas</option>
+          {uniqueAreas.map((area) => (
+            <option key={area} value={area}>
+              {area}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="hotel-grid">
         {filteredHotels.map((hotel) => (
@@ -137,6 +156,10 @@ export default function HotelsPage() {
             <div className="hotel-info">
               <h2 className="hotel-name">{hotel.name}</h2>
               <p className="hotel-description">{hotel.description}</p>
+              <p className="hotel-area">
+                <span className="location-icon">📍</span>
+                {hotel.area}
+              </p>
               <div className="hotel-rating">
                 {[...Array(5)].map((_, index) => {
                   const isFull = index < Math.floor(hotel.rating);
@@ -204,7 +227,8 @@ export default function HotelsPage() {
           max-width: 100%;
         }
 
-        .rating-filter {
+        .rating-filter,
+        .area-filter {
           width: 180px;
         }
 
@@ -263,6 +287,12 @@ export default function HotelsPage() {
           margin-bottom: 15px;
         }
 
+        .hotel-area {
+          font-size: 1rem;
+          color: #888;
+          margin: 5px 0;
+        }
+
         .hotel-rating {
           display: flex;
           justify-content: center;
@@ -318,7 +348,8 @@ export default function HotelsPage() {
             max-width: none;
           }
 
-          .rating-filter {
+          .rating-filter,
+          .area-filter {
             width: 100%;
             max-width: none;
           }
