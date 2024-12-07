@@ -12,11 +12,16 @@ import {
   faSwimmingPool,
   faBinoculars,
   faHouseUser,
+  faConciergeBell, // Room Service
+  faCoffee,         // Coffee Maker
+  faFan,            // Air Purifier
   faQuestionCircle,
   faPhone,
   faGlobe,
   faMapMarkerAlt,
   faStar,
+  faLock,           // Safe
+  faSpa,            // Hair Dryer (Alternative)
 } from "@fortawesome/free-solid-svg-icons";
 
 type Room = {
@@ -56,6 +61,24 @@ export default function RoomsPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
+
+  // Mapping amenities to icons
+  const icons: Record<string, JSX.Element> = {
+    wifi: <FontAwesomeIcon icon={faWifi} color="#4CAF50" />,
+    "wi-fi": <FontAwesomeIcon icon={faWifi} color="#4CAF50" />, // Mapping both "wifi" and "wi-fi"
+    tv: <FontAwesomeIcon icon={faTv} color="#2196F3" />,
+    ac: <FontAwesomeIcon icon={faSnowflake} color="#00BCD4" />,
+    "mini fridge": <FontAwesomeIcon icon={faUtensils} color="#FF9800" />,
+    parking: <FontAwesomeIcon icon={faCar} color="#9C27B0" />,
+    pool: <FontAwesomeIcon icon={faSwimmingPool} color="#3F51B5" />,
+    view: <FontAwesomeIcon icon={faBinoculars} color="#795548" />,
+    balcony: <FontAwesomeIcon icon={faHouseUser} color="#E91E63" />,
+    "room service": <FontAwesomeIcon icon={faConciergeBell} color="#FFC107" />,
+    "coffee maker": <FontAwesomeIcon icon={faCoffee} color="#FF5722" />,
+    "air purifier": <FontAwesomeIcon icon={faFan} color="#607D8B" />,
+    "hair dryer": <FontAwesomeIcon icon={faSpa} color="#9C27B0" />, // Alternative for Hair Dryer
+    safe: <FontAwesomeIcon icon={faLock} color="#607D8B" />,        // Safe
+  };
 
   const fetchRoomsAndReviews = async () => {
     if (!hotelId) return;
@@ -108,26 +131,22 @@ export default function RoomsPage() {
   };
 
   const renderAmenities = (amenities: string) => {
-    const amenitiesList = amenities.split(", ");
-    const icons: Record<string, JSX.Element> = {
-      wifi: <FontAwesomeIcon icon={faWifi} color="#4CAF50" />,
-      tv: <FontAwesomeIcon icon={faTv} color="#2196F3" />,
-      ac: <FontAwesomeIcon icon={faSnowflake} color="#00BCD4" />,
-      "mini fridge": <FontAwesomeIcon icon={faUtensils} color="#FF9800" />,
-      parking: <FontAwesomeIcon icon={faCar} color="#9C27B0" />,
-      pool: <FontAwesomeIcon icon={faSwimmingPool} color="#3F51B5" />,
-      view: <FontAwesomeIcon icon={faBinoculars} color="#795548" />,
-      balcony: <FontAwesomeIcon icon={faHouseUser} color="#E91E63" />,
-    };
+    // Split amenities by comma and space, then trim and lowercase each amenity
+    const amenitiesList = amenities.split(", ").map((amenity) => amenity.trim().toLowerCase());
 
     return (
       <div className="flex flex-wrap gap-4">
         {amenitiesList.map((amenity) => (
           <div key={amenity} className="flex items-center gap-1 text-gray-700">
-            {icons[amenity.toLowerCase()] || (
+            {icons[amenity] || (
               <FontAwesomeIcon icon={faQuestionCircle} color="#9E9E9E" />
             )}
-            <span className="text-sm">{amenity}</span>
+            <span className="text-sm">
+              {amenity
+                .split(" ")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ")}
+            </span>
           </div>
         ))}
       </div>
