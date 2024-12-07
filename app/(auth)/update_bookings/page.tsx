@@ -16,6 +16,7 @@ export default function UpdateBookingPage() {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
   const bookingId = searchParams.get("booking_id");
@@ -39,10 +40,12 @@ export default function UpdateBookingPage() {
           const data = await res.json();
           setBooking(data);
         } else {
-          setError("Booking not found or an error occurred.");
+          const data = await res.json();
+          setError(data.message || "Booking not found or an error occurred.");
         }
       } catch (err) {
         setError("An error occurred while fetching the booking.");
+        console.error("Error:", err);
       } finally {
         setLoading(false);
       }
@@ -57,6 +60,8 @@ export default function UpdateBookingPage() {
   }, [bookingId]);
 
   const handleUpdate = async (updatedBooking: Booking) => {
+    setError(null);
+    setSuccessMessage(null);
     try {
       const res = await fetch(`/api/auth/update_booking?booking_id=${bookingId}`, {
         method: "POST",
@@ -66,57 +71,101 @@ export default function UpdateBookingPage() {
       });
 
       if (res.ok) {
-        router.push("/user_bookings"); // Redirect to My Bookings page
+        setSuccessMessage("Booking updated successfully!");
+        // Optionally, redirect after a short delay
+        setTimeout(() => {
+          router.push("/user_bookings");
+        }, 2000);
       } else {
-        setError("Failed to update booking.");
+        const errorData = await res.json();
+        setError(errorData.message || "Failed to update booking.");
       }
     } catch (err) {
       setError("An error occurred while updating the booking.");
+      console.error("Error:", err);
     }
   };
 
-  if (loading) return <div>Loading booking details...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-lg font-semibold text-gray-700">Loading booking details...</div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-lg font-semibold text-red-500">{error}</div>
+      </div>
+    );
 
   return (
-    <div>
-      <h1>Update Booking</h1>
-      <p>Booking ID: {bookingId}</p>
-      {booking && (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const updatedBooking = {
-              ...booking,
-              check_in: (e.target as any).check_in.value,
-              check_out: (e.target as any).check_out.value
-            };
-            handleUpdate(updatedBooking as Booking);
-          }}
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Update Booking</h1>
+        <p className="mb-4 text-center text-gray-600">Booking ID: {bookingId}</p>
+
+        {successMessage && (
+          <div className="mb-4 text-green-600 text-center">{successMessage}</div>
+        )}
+
+        {booking && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const updatedBooking = {
+                ...booking,
+                check_in: (e.target as any).check_in.value,
+                check_out: (e.target as any).check_out.value,
+              };
+              handleUpdate(updatedBooking as Booking);
+            }}
+          >
+            <div className="mb-4">
+              <label htmlFor="check_in" className="block text-gray-700 font-medium mb-2">
+                Check-in Date:
+              </label>
+              <input
+                type="date"
+                id="check_in"
+                name="check_in"
+                defaultValue={formatDate(booking.check_in)}
+                required
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="mb-6">
+              <label htmlFor="check_out" className="block text-gray-700 font-medium mb-2">
+                Check-out Date:
+              </label>
+              <input
+                type="date"
+                id="check_out"
+                name="check_out"
+                defaultValue={formatDate(booking.check_out)}
+                required
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Update Booking
+              </button>
+            </div>
+          </form>
+        )}
+
+        <button
+          onClick={() => router.back()}
+          className="mt-6 w-full bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
         >
-          <label>
-            Check-in Date:
-            <input
-              type="date"
-              name="check_in"
-              defaultValue={formatDate(booking.check_in)} // Safely format ISO date
-            />
-          </label>
-          <br />
-          <label>
-            Check-out Date:
-            <input
-              type="date"
-              name="check_out"
-              defaultValue={formatDate(booking.check_out)} // Safely format ISO date
-            />
-          </label>
-          <br />
-          <br />
-          <button type="submit">Update Booking</button>
-        </form>
-      )}
-      <button onClick={() => router.back()}>Back</button>
+          Back
+        </button>
+      </div>
     </div>
   );
 }

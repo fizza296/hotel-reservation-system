@@ -42,11 +42,58 @@ export default function HotelsPage() {
   }, []);
 
   if (loading) {
-    return <div>Loading hotels...</div>;
+    return (
+      <div className="loader-container">
+        <div className="spinner"></div>
+        <style jsx>{`
+          .loader-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            background-color: #f5f5f5;
+          }
+
+          .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #0070f3;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1.5s linear infinite;
+          }
+
+          @keyframes spin {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   if (hotels.length === 0) {
-    return <div>No hotels available.</div>;
+    return (
+      <div className="no-hotels">
+        <p>No hotels available.</p>
+        <style jsx>{`
+          .no-hotels {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            font-size: 1.2rem;
+            color: #555;
+            background-color: #f9f9f9;
+          }
+        `}</style>
+      </div>
+    );
   }
 
   const handleBookNow = (hotelId: number) => {
@@ -61,6 +108,7 @@ export default function HotelsPage() {
 
   return (
     <div className="hotel-container">
+      <h1 className="page-title">Explore Our Hotels</h1>
       <div className="filter-section">
         <input
           type="text"
@@ -88,7 +136,7 @@ export default function HotelsPage() {
             <img src={hotel.image_link} alt={hotel.name} className="hotel-image" />
             <div className="hotel-info">
               <h2 className="hotel-name">{hotel.name}</h2>
-              <p>{hotel.description}</p>
+              <p className="hotel-description">{hotel.description}</p>
               <div className="hotel-rating">
                 {[...Array(5)].map((_, index) => {
                   const isFull = index < Math.floor(hotel.rating);
@@ -100,11 +148,7 @@ export default function HotelsPage() {
                       className={`star ${isFull ? "filled" : ""} ${isPartial ? "partial" : ""}`}
                       style={{
                         backgroundImage: isPartial
-                          ? `linear-gradient(90deg, #ffcc00 ${(
-                              (hotel.rating % 1) * 100
-                            ).toFixed(2)}%, #ddd ${(
-                              (hotel.rating % 1) * 100
-                            ).toFixed(2)}%)`
+                          ? `linear-gradient(90deg, #ffcc00 ${(hotel.rating % 1) * 100}%, #ddd ${(hotel.rating % 1) * 100}%)`
                           : undefined,
                       }}
                     >
@@ -127,124 +171,161 @@ export default function HotelsPage() {
         .hotel-container {
           display: flex;
           flex-direction: column;
-          gap: 20px;
-          padding: 20px;
+          gap: 30px;
+          padding: 30px 20px;
+          background-color: #fafafa;
+          min-height: 100vh;
+        }
+
+        .page-title {
+          text-align: center;
+          font-size: 2.5rem;
+          color: #333;
+          margin-bottom: 10px;
         }
 
         .filter-section {
           display: flex;
-          gap: 20px;
-          margin-bottom: 20px;
+          flex-wrap: wrap;
+          gap: 15px;
           justify-content: center;
           align-items: center;
+          margin-bottom: 30px;
         }
 
         .styled-input {
-          padding: 10px;
+          padding: 12px 20px;
           border: 2px solid #ccc;
-          border-radius: 25px;
+          border-radius: 30px;
           outline: none;
           font-size: 1rem;
-          transition: border-color 0.3s;
+          transition: border-color 0.3s, box-shadow 0.3s;
+          width: 250px;
+          max-width: 100%;
         }
 
         .rating-filter {
-          width: 150px;
+          width: 180px;
         }
 
         .styled-input:focus {
           border-color: #0070f3;
+          box-shadow: 0 0 5px rgba(0, 112, 243, 0.5);
         }
 
         .hotel-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 20px;
+          gap: 25px;
           justify-items: center;
         }
 
-        @media (min-width: 1024px) {
-          .hotel-grid {
-            grid-template-columns: repeat(3, 1fr);
-          }
-        }
-
         .hotel-card {
-          width: 300px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          overflow: hidden;
+          width: 100%;
+          max-width: 350px;
           background: #fff;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-          transform: rotate(0deg); /* Remove tilt */
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          display: flex;
+          flex-direction: column;
         }
 
         .hotel-card:hover {
-          transform: scale(1.05);
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+          transform: translateY(-5px);
+          box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
         }
 
         .hotel-image {
           width: 100%;
           height: 200px;
           object-fit: cover;
-          border-bottom: 2px solid #ddd;
         }
 
         .hotel-info {
-          padding: 15px;
-          text-align: center;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
         }
 
         .hotel-name {
-          font-size: 1.5rem;
-          font-weight: bold;
+          font-size: 1.75rem;
+          color: #0070f3;
           margin-bottom: 10px;
+        }
+
+        .hotel-description {
+          flex-grow: 1;
+          font-size: 1rem;
+          color: #555;
+          margin-bottom: 15px;
         }
 
         .hotel-rating {
           display: flex;
           justify-content: center;
-          margin: 10px 0;
+          margin-bottom: 15px;
         }
 
         .star {
-          font-size: 18px;
+          font-size: 20px;
           color: #ddd;
-          width: 18px;
-          height: 18px;
+          width: 20px;
+          height: 20px;
           display: inline-block;
-          line-height: 18px;
+          line-height: 20px;
           text-align: center;
-          background-color: #ddd;
-          background-clip: text;
-          -webkit-background-clip: text;
+          margin: 0 2px;
+          position: relative;
         }
 
         .star.filled {
           color: #ffcc00;
-          background-color: #ffcc00;
         }
 
         .star.partial {
           color: transparent;
-          background-clip: content-box;
+          background-clip: text;
           -webkit-background-clip: text;
         }
 
         .book-button {
-          margin-top: 10px;
-          padding: 10px 20px;
+          padding: 12px;
           background-color: #0070f3;
           color: #fff;
           border: none;
-          border-radius: 4px;
+          border-radius: 25px;
           cursor: pointer;
+          font-size: 1rem;
           font-weight: bold;
+          transition: background-color 0.3s, transform 0.2s;
         }
 
         .book-button:hover {
           background-color: #005bb5;
+          transform: translateY(-2px);
+        }
+
+        @media (max-width: 600px) {
+          .filter-section {
+            flex-direction: column;
+          }
+
+          .styled-input {
+            width: 100%;
+            max-width: none;
+          }
+
+          .rating-filter {
+            width: 100%;
+            max-width: none;
+          }
+
+          .hotel-card {
+            max-width: 100%;
+          }
         }
       `}</style>
     </div>

@@ -5,7 +5,7 @@ import { RowDataPacket } from 'mysql2';
 export async function GET() {
   try {
     const [hotels] = await db.promise().query<RowDataPacket[]>(
-      `SELECT hotel_id, name, description, image_link, rating FROM Hotels` // Add `rating` column
+      `SELECT hotel_id, name, description, image_link, rating, formatted_address FROM Hotels` // Add `rating` column
     );
 
     return NextResponse.json(hotels, { status: 200 });
