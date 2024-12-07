@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import db from '../../../../db';
+import db from '../../../../db'; // Adjust the path if necessary
 import { cookies } from 'next/headers';
 import { RowDataPacket, FieldPacket } from 'mysql2';
 
@@ -13,11 +13,14 @@ export async function GET() {
     : null;
 
   if (!userId) {
-    return NextResponse.json({ message: 'Please log in to view your bookings' }, { status: 401 });
+    return NextResponse.json(
+      { message: 'Please log in to view your bookings' }, 
+      { status: 401 }
+    );
   }
 
   try {
-    // Correctly type the response from the database
+    // Query to fetch bookings for the authenticated user
     const [bookings, fields]: [RowDataPacket[], FieldPacket[]] = await db.promise().query(`
       SELECT 
         b.booking_id,
@@ -36,12 +39,18 @@ export async function GET() {
     `, [userId]);
 
     if (bookings.length === 0) {
-      return NextResponse.json({ message: 'No previous bookings found' }, { status: 200 });
+      return NextResponse.json(
+        { message: 'No previous bookings found' }, 
+        { status: 200 }
+      );
     }
 
     return NextResponse.json(bookings, { status: 200 });
   } catch (error) {
     console.error('Error fetching bookings:', error);
-    return NextResponse.json({ message: 'Error fetching bookings', error: (error as Error).message }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Error fetching bookings', error: (error as Error).message }, 
+      { status: 500 }
+    );
   }
 }

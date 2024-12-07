@@ -5,7 +5,7 @@ import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
-  const cookieStore = cookies();  // Get the cookies from headers
+  const cookieStore = cookies();
   const sessionCookie = cookieStore.get('session')?.value;
 
   // Extract user_id from the session cookie if it exists
@@ -34,11 +34,27 @@ export async function POST(request: NextRequest) {
 
     const receiptId = result.insertId;
 
-    // Fetch the newly created receipt to send back to the client
+    // Fetch the receipt details along with user, hotel, room, and booking info
     const [rows] = await db.promise().query<RowDataPacket[]>(
-      `SELECT receipt_id, booking_id, user_id, receipt_date 
-       FROM Receipts 
-       WHERE receipt_id = ?`,
+      `
+      SELECT 
+        r.receipt_id, 
+        r.booking_id, 
+        r.user_id, 
+        r.receipt_date,
+        u.username,
+        h.name AS hotel_name,
+        ro.room_type,
+        b.check_in_date,
+        b.check_out_date,
+        b.special_requests
+      FROM Receipts r
+      JOIN Users u ON r.user_id = u.user_id
+      JOIN Bookings b ON r.booking_id = b.booking_id
+      JOIN Rooms ro ON b.room_id = ro.room_id
+      JOIN Hotels h ON ro.hotel_id = h.hotel_id
+      WHERE r.receipt_id = ?
+      `,
       [receiptId]
     );
 
