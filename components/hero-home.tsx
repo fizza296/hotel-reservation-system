@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion"; // Import motion
+import { motion } from "framer-motion";
 
 // Define the Hotel interface
 interface Hotel {
@@ -22,7 +22,6 @@ export default function HeroHome() {
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Properly typed hotels array
   const hotels: Hotel[] = [
     {
       id: 50,
@@ -44,7 +43,6 @@ export default function HeroHome() {
     },
   ];
 
-  // Fetch area suggestions based on user input
   useEffect(() => {
     if (location.trim() === "") {
       setSuggestions([]);
@@ -52,7 +50,6 @@ export default function HeroHome() {
       return;
     }
     setIsLoading(true);
-    // Debounce the API call
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
     }
@@ -75,9 +72,7 @@ export default function HeroHome() {
         .finally(() => {
           setIsLoading(false);
         });
-    }, 300); // 300ms debounce
-
-    // Cleanup timeout on unmount
+    }, 300);
     return () => {
       if (debounceTimeout.current) {
         clearTimeout(debounceTimeout.current);
@@ -85,7 +80,6 @@ export default function HeroHome() {
     };
   }, [location]);
 
-  // Handle clicks outside the suggestions dropdown to close it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -108,10 +102,8 @@ export default function HeroHome() {
 
   const handleSearch = () => {
     if (location.trim() === "") {
-      // Optionally, you can show a validation message here
       return;
     }
-    // Navigate to the hotels page with the selected area as a query parameter
     router.push(`/hotels?area=${encodeURIComponent(location.trim())}`);
   };
 
@@ -122,7 +114,6 @@ export default function HeroHome() {
   };
 
   return (
-    // Use motion.section for animating the entire HeroHome section
     <motion.section
       className="relative bg-white pt-28 sm:pt-32 pb-16"
       initial={{ opacity: 0, y: -50 }}
@@ -130,116 +121,112 @@ export default function HeroHome() {
       exit={{ opacity: 0, y: 50 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      {/* Optional: Increased horizontal padding on large screens */}
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
-        {/* Hero Content */}
-        <div className="text-center">
-          <h1 className="mb-6 text-5xl font-extrabold text-gray-900 sm:text-6xl">
+        <div
+          className="relative bg-gradient-to-r from-blue-800 to-blue-900 text-white py-20 rounded-lg shadow-md flex flex-col items-center justify-center"
+        >
+          <h1 className="mb-6 text-4xl font-extrabold sm:text-5xl text-center">
             Find Your Ideal Hotel
           </h1>
-          <p className="mx-auto mb-10 text-xl text-gray-700 max-w-2xl">
+          <p className="text-lg sm:text-xl max-w-2xl text-center">
             Discover top-rated hotels at the best prices. Book your next stay
             with us!
           </p>
-          {/* Booking Form */}
-          <div
-            className="flex flex-col items-center justify-center gap-6 sm:flex-row relative w-full sm:w-auto"
-            ref={dropdownRef}
-          >
-            <div className="relative w-full sm:w-96">
-              <div className="flex items-center border border-gray-300 rounded-full bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
-                <span className="px-4 text-gray-500">
-                  {/* Updated SVG Search Icon */}
+        </div>
+        <div
+          className="flex flex-col items-center justify-center gap-6 sm:flex-row relative w-full sm:w-auto mt-10"
+          ref={dropdownRef}
+        >
+          <div className="relative w-full sm:w-96">
+            <div className="flex items-center border border-gray-300 rounded-full bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
+              <span className="px-4 text-gray-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                placeholder="Search for a location"
+                aria-label="Search for a location"
+                className="flex-1 py-3 px-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-400 text-lg"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                onFocus={() => {
+                  if (suggestions.length > 0) setShowSuggestions(true);
+                }}
+                onKeyDown={handleKeyDown}
+              />
+              {isLoading && (
+                <span className="px-4">
                   <svg
+                    className="animate-spin h-5 w-5 text-gray-500"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                    fill="none"
+                    viewBox="0 0 24 24"
                   >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
                     <path
-                      fillRule="evenodd"
-                      d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z"
-                      clipRule="evenodd"
-                    />
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
                   </svg>
                 </span>
-                <input
-                  type="text"
-                  placeholder="Search for a location"
-                  aria-label="Search for a location"
-                  className="flex-1 py-3 px-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-400 text-lg"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  onFocus={() => {
-                    if (suggestions.length > 0) setShowSuggestions(true);
-                  }}
-                  onKeyDown={handleKeyDown}
-                />
-                {isLoading && (
-                  <span className="px-4">
-                    {/* Loading Spinner */}
-                    <svg
-                      className="animate-spin h-5 w-5 text-gray-500"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8H4z"
-                      ></path>
-                    </svg>
-                  </span>
-                )}
-              </div>
-              {/* Suggestions Dropdown */}
-              {showSuggestions && (
-                <motion.ul
-                  className="absolute left-0 right-0 z-20 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {isLoading ? (
-                    <li className="px-5 py-3 text-center text-gray-500">
-                      Loading...
-                    </li>
-                  ) : suggestions.length > 0 ? (
-                    suggestions.map((suggestion, index) => (
-                      <li
-                        key={index}
-                        className="px-5 py-3 hover:bg-blue-100 cursor-pointer transition-colors duration-200"
-                        onClick={() => handleSuggestionClick(suggestion)}
-                      >
-                        {suggestion}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="px-5 py-3 text-center text-gray-500">
-                      No suggestions found.
-                    </li>
-                  )}
-                </motion.ul>
               )}
             </div>
-            <button
-              type="button"
-              onClick={handleSearch}
-              className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-full py-3 px-8 transition-colors duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              Search
-            </button>
+            {showSuggestions && (
+              <motion.ul
+                className="absolute left-0 right-0 z-20 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {isLoading ? (
+                  <li className="px-5 py-3 text-center text-gray-500">
+                    Loading...
+                  </li>
+                ) : suggestions.length > 0 ? (
+                  suggestions.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      className="px-5 py-3 hover:bg-blue-100 cursor-pointer transition-colors duration-200"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      {suggestion}
+                    </li>
+                  ))
+                ) : (
+                  <li className="px-5 py-3 text-center text-gray-500">
+                    No suggestions found.
+                  </li>
+                )}
+              </motion.ul>
+            )}
           </div>
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-full py-3 px-8 transition-colors duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          >
+            Search
+          </button>
         </div>
         {/* Hotels Grid */}
         <div className="mt-20 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
@@ -278,7 +265,6 @@ export default function HeroHome() {
             </motion.div>
           ))}
         </div>
-        {/* View More Button */}
         <div className="mt-24 flex justify-center">
           <Link
             href="/hotels"
