@@ -9,10 +9,13 @@
     hotel_id: number;
     name: string;
     description: string;
+    phone_number: string;
+    address: string;
+    website?: string;
+    google_maps_url?: string;
     image_link: string;
     rating: number;
   };
-
   type User = {
     user_id: number;
     username: string;
@@ -41,6 +44,10 @@
     const [newHotel, setNewHotel] = useState<Partial<Hotel>>({
       name: "",
       description: "",
+      address: "",
+      phone_number: "",
+      website: "",
+      google_maps_url: "",
       image_link: "",
       rating: 0,
     });
@@ -71,6 +78,8 @@
       console.log(msg); // Log to console for debugging
       setToast({ message: msg, type: "success" });
     };
+
+    
 
     useEffect(() => {
       const fetchData = async () => {
@@ -177,38 +186,33 @@
     const handleAddHotel = async (e: FormEvent) => {
       e.preventDefault();
       console.log("Submitting Add Hotel Form:", newHotel);
-
-      // Ensure image is uploaded
-      if (!newHotel.image_link) {
-        showError("Please upload an image before submitting.");
-        return;
-      }
-
+    
       try {
         const res = await fetch(`/api/auth/add_hotel`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newHotel),
         });
-
+    
         if (res.ok) {
           const addedHotel = await res.json();
+          console.log("Hotel added successfully:", addedHotel);
           setHotels([...hotels, addedHotel]);
-          setShowHotelModal(false); // Close the modal
-          setNewHotel({ name: "", description: "", image_link: "", rating: 0 }); // Reset form
+          setShowHotelModal(false);
+          setNewHotel({ name: "", description: "", address: "", phone_number: "", website: "", google_maps_url: "", image_link: "", rating: 0 });
           setSelectedImage(null);
           showSuccess("Hotel added successfully.");
-          console.log("Added Hotel:", addedHotel);
         } else {
           const errorText = await res.text();
           console.error("Add Hotel Error:", errorText);
-          showError("Failed to add hotel.");
+          showError(`Failed to add hotel: ${errorText}`);
         }
       } catch (error) {
         console.error("Add Hotel Exception:", error);
         showError("Error adding hotel.");
       }
     };
+    
     if (loading) {
       return (
         <div className="loader-container">
@@ -406,91 +410,127 @@
         )}
 
         {/* Modal for Add Hotel */}
-        {showHotelModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-              <h2 className="text-2xl font-bold mb-4">Add New Hotel</h2>
-              <form onSubmit={handleAddHotel}>
-                <label className="block mb-3">
-                  <span className="text-gray-700">Name</span>
-                  <input
-                    type="text"
-                    name="name"
-                    value={newHotel.name || ""}
-                    onChange={handleHotelInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required
-                  />
-                </label>
-                <label className="block mb-3">
-                  <span className="text-gray-700">Description</span>
-                  <textarea
-                    name="description"
-                    value={newHotel.description || ""}
-                    onChange={handleHotelInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required
-                  />
-                </label>
+        {
+  showHotelModal && (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <h2 className="text-2xl font-bold mb-4">Add New Hotel</h2>
+        <form onSubmit={handleAddHotel}>
+          <label className="block mb-3">
+            <span className="text-gray-700">Name</span>
+            <input
+              type="text"
+              name="name"
+              value={newHotel.name || ""}
+              onChange={handleHotelInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            />
+          </label>
+          <label className="block mb-3">
+            <span className="text-gray-700">Description</span>
+            <textarea
+              name="description"
+              value={newHotel.description || ""}
+              onChange={handleHotelInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            />
+          </label>
+          <label className="block mb-3">
+            <span className="text-gray-700">Address</span>
+            <input
+              type="text"
+              name="address"
+              value={newHotel.address || ""}
+              onChange={handleHotelInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            />
+            </label>
+            <label className="block mb-3">
+  <span className="text-gray-700">Phone Number</span>
+  <input
+    type="text"
+    name="phone_number"
+    value={newHotel.phone_number || ""}
+    onChange={handleHotelInputChange}
+    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+    required
+  />
+</label>
 
-                {/* Image Upload Section */}
-                <div className="mb-3">
-                  <span className="text-gray-700">Image</span>
-                  <div className="flex items-center mt-1">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="block w-full text-sm text-gray-500
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-md file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-blue-50 file:text-blue-700
-                        hover:file:bg-blue-100"
-                    />
-                  
-                  </div>
-                  {newHotel.image_link && (
-                    <div className="mt-2">
-                      <span className="text-green-600 text-sm">Image uploaded successfully.</span>
-                    </div>
-                  )}
-                </div>
-
-                <label className="block mb-3">
-                  <span className="text-gray-700">Rating</span>
-                  <input
-                    type="number"
-                    name="rating"
-                    value={newHotel.rating || 0}
-                    onChange={handleHotelInputChange}
-                    min="0"
-                    max="5"
-                    step="0.1"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required
-                  />
-                </label>
-
-                <div className="mt-4 flex justify-end space-x-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowHotelModal(false)}
-                    className="text-gray-500 hover:text-gray-700 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded-md bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700 transition"
-                  >
-                    Add Hotel
-                  </button>
-                </div>
-              </form>
+          <label className="block mb-3">
+            <span className="text-gray-700">Website (Optional)</span>
+            <input
+              type="url"
+              name="website"
+              value={newHotel.website || ""}
+              onChange={handleHotelInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </label>
+          <label className="block mb-3">
+            <span className="text-gray-700">Google Maps URL (Optional)</span>
+            <input
+              type="url"
+              name="google_maps_url"
+              value={newHotel.google_maps_url || ""}
+              onChange={handleHotelInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+          </label>
+          
+          <div className="mb-3">
+            <span className="text-gray-700">Image</span>
+            <div className="flex items-center mt-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
             </div>
+            {newHotel.image_link && (
+              <div className="mt-2">
+                <span className="text-green-600 text-sm">Image uploaded successfully.</span>
+              </div>
+            )}
           </div>
-        )}
+          <label className="block mb-3">
+            <span className="text-gray-700">Rating</span>
+            <input
+              type="number"
+              name="rating"
+              value={newHotel.rating || 0}
+              onChange={handleHotelInputChange}
+              min="0"
+              max="5"
+              step="0.1"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            />
+          </label>
+          <div className="mt-4 flex justify-end space-x-4">
+            <button
+              type="button"
+              onClick={() => setShowHotelModal(false)}
+              className="text-gray-500 hover:text-gray-700 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-md bg-blue-600 px-4 py-2 text-white shadow hover:bg-blue-700 transition"
+            >
+              Add Hotel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )};
+
 
         {/* Modal for Add User */}
         {showUserModal && (

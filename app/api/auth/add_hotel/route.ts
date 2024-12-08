@@ -1,48 +1,43 @@
-// pages/api/auth/add_hotel.ts
-
 import { NextResponse } from 'next/server';
 import db from '../../../../db';
 import { ResultSetHeader } from 'mysql2';
 
 export async function POST(req: Request) {
   try {
-    const { name, description, image_link, rating } = await req.json();
+    const {
+      name,
+      description,
+      phone_number,
+      address,
+      website,
+      google_maps_url,
+      image_link,
+      rating,
+    } = await req.json();
 
-    // Updated validation to include image_link as required
-    if (!name || !description || !image_link) {
+    // Validate required fields
+    if (!name || !description || !phone_number || !address || !image_link) {
       return NextResponse.json(
-        { message: 'Name, description, and image link are required.' },
+        { message: 'Name, description, phone number, address, and image link are required.' },
         { status: 400 }
       );
     }
 
-    // Optional: Simple URL validation (basic check)
-    const urlPattern = new RegExp(
-      '^(https?:\\/\\/)?' + // protocol
-        '((([a-zA-Z\\d]([a-zA-Z\\d-]*[a-zA-Z\\d])*)\\.)+[a-zA-Z]{2,})' + // domain name
-        '(\\:\\d+)?(\\/[-a-zA-Z\\d%_.~+]*)*' + // port and path
-        '(\\?[;&a-zA-Z\\d%_.~+=-]*)?' + // query string
-        '(\\#[-a-zA-Z\\d_]*)?$',
-      'i'
-    );
-    if (!urlPattern.test(image_link)) {
-      return NextResponse.json(
-        { message: 'Invalid image link URL.' },
-        { status: 400 }
-      );
-    }
-
-    // Insert the new hotel into the database
+    // Insert into the database
     const [result] = await db.promise().query<ResultSetHeader>(
-      `INSERT INTO Hotels (name, description, image_link, rating) VALUES (?, ?, ?, ?)`,
-      [name, description, image_link, rating || null]
+      `INSERT INTO Hotels (name, description, phone_number, formatted_address, website_url, google_maps_url, image_link, rating) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, description, phone_number, address, website || null, google_maps_url || null, image_link, rating || null]
     );
 
-    // Construct the new hotel object to return
+    // Construct the response
     const newHotel = {
       hotel_id: result.insertId,
       name,
       description,
+      phone_number,
+      address,
+      website,
+      google_maps_url,
       image_link,
       rating,
     };
