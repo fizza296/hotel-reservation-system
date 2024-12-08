@@ -87,12 +87,16 @@ export default function HeroHome() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setShowSuggestions(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -111,20 +115,30 @@ export default function HeroHome() {
 
   return (
     <motion.section
-      className="relative bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 pt-24 sm:pt-32 pb-20"
+      className="relative pt-24 sm:pt-32 pb-20 bg-gray-50 overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
+      style={{
+        backgroundImage: `url('/images/paper_texture.jpg')`, // Updated to .jpg
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "repeat",
+        backgroundBlendMode: "overlay",
+        backgroundColor: "rgba(255, 255, 255, 0.95)", // Light overlay to fade the background
+      }}
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-12 font-inter">
-        {/* Heading Section */}
-        <div className="text-center text-accent-light mb-14">
-          <h1 className="mb-6 text-5xl sm:text-6xl font-extrabold text-gray-900 relative inline-block">
+      {/* Main Content Container */}
+      <div className="mx-auto max-w-7xl px-6 lg:px-12 font-inter relative z-10">
+        {/* Heading Section with Dark Blue Gradient */}
+        <div className="text-center bg-gradient-to-r from-blue-800 to-blue-900 text-white mb-14 p-8 rounded-lg shadow-md">
+          <h1 className="mb-6 text-5xl sm:text-6xl font-extrabold relative inline-block">
             Find Your Ideal Hotel
             <span className="block w-20 h-1 bg-yellow-400 mx-auto mt-4 rounded"></span>
           </h1>
-          <p className="mx-auto mb-10 max-w-2xl text-lg sm:text-xl text-gray-700 font-normal">
-            Discover top-rated hotels at the best prices. Book your next stay with us!
+          <p className="mx-auto mb-10 max-w-2xl text-lg sm:text-xl font-normal">
+            Discover top-rated hotels at the best prices. Book your next stay with
+            us!
           </p>
         </div>
 
@@ -134,7 +148,7 @@ export default function HeroHome() {
           ref={dropdownRef}
         >
           <div className="relative w-full sm:w-96">
-            <div className="flex items-center rounded-full border border-gray-300 bg-white bg-opacity-80 backdrop-blur-md shadow-md transition-all duration-300 focus-within:border-blue-400 hover:shadow-lg">
+            <div className="flex items-center rounded-full border border-gray-300 bg-white bg-opacity-80 backdrop-blur-md shadow-sm transition-all duration-300 focus-within:border-blue-400 hover:shadow-md">
               <span className="px-4 text-gray-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -198,19 +212,23 @@ export default function HeroHome() {
                   transition={{ duration: 0.2 }}
                 >
                   {isLoading ? (
-                    <li className="px-5 py-3 text-center text-gray-600">Loading...</li>
+                    <li className="px-5 py-3 text-center text-gray-600">
+                      Loading...
+                    </li>
                   ) : suggestions.length > 0 ? (
                     suggestions.map((suggestion, index) => (
                       <li
                         key={index}
-                        className="px-5 py-3 cursor-pointer hover:bg-blue-100 hover:text-gray-800 transition-colors duration-200 text-gray-700"
+                        className="px-5 py-3 cursor-pointer hover:bg-blue-50 hover:text-gray-800 transition-colors duration-200 text-gray-700"
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
                         {suggestion}
                       </li>
                     ))
                   ) : (
-                    <li className="px-5 py-3 text-center text-gray-600">No suggestions found.</li>
+                    <li className="px-5 py-3 text-center text-gray-600">
+                      No suggestions found.
+                    </li>
                   )}
                 </motion.ul>
               )}
@@ -221,14 +239,14 @@ export default function HeroHome() {
           <button
             type="button"
             onClick={handleSearch}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full py-3 px-10 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 focus:outline-none"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full py-3 px-10 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none"
           >
             Search
           </button>
         </div>
 
         {/* Carousel */}
-        <div className="relative overflow-hidden h-96 w-full max-w-4xl mx-auto mt-12 mb-20 rounded-2xl shadow-lg">
+        <div className="relative overflow-hidden min-h-[500px] w-full max-w-4xl mx-auto mt-12 mb-20 rounded-2xl shadow-lg">
           <AnimatePresence>
             <motion.div
               key={hotels[currentHotelIndex].id}
@@ -238,14 +256,14 @@ export default function HeroHome() {
               exit={{ opacity: 0, x: -100 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="w-full max-w-3xl bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden">
-                <div className="relative h-64">
+              <div className="w-full bg-white bg-opacity-95 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden">
+                <div className="relative h-80">
                   <Image
                     src={hotels[currentHotelIndex].imageSrc}
                     alt={hotels[currentHotelIndex].name}
                     fill
                     style={{ objectFit: "cover" }}
-                    className="transform hover:scale-110 transition-transform duration-300"
+                    className="transform hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 <div className="p-6 text-center">
@@ -274,7 +292,7 @@ export default function HeroHome() {
         <div className="flex justify-center">
           <Link
             href="/hotels"
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-full py-4 px-10 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-full py-4 px-10 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
           >
             View More Hotels
           </Link>
