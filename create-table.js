@@ -17,6 +17,7 @@ const createHotelsTable = `
     hotel_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     formatted_address VARCHAR(255),
+    area VARCHAR(255),
     latitude DECIMAL(9, 6),
     longitude DECIMAL(9, 6),
     rating FLOAT CHECK (rating BETWEEN 0 AND 5),
