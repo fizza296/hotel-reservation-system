@@ -115,134 +115,148 @@ export default function HeroHome() {
 
   return (
     <motion.section
-      className="relative pt-24 sm:pt-32 pb-20 bg-gray-50 overflow-hidden"
+      className="relative pt-24 sm:pt-32 pb-20 bg-blue-500 overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
       style={{
-        backgroundImage: `url('/images/paper_texture.jpg')`, // Updated to .jpg
+        backgroundImage: `url('/images/paper_texture.jpg')`, // Existing background
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "repeat",
         backgroundBlendMode: "overlay",
-        backgroundColor: "rgba(255, 255, 255, 0.95)", // Light overlay to fade the background
+        backgroundColor: "rgba(255, 255, 255, 0.95)", // Light overlay
       }}
     >
+      {/* More Opaque Hotel Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/hotel-image.jpg" // Replace with your hotel background image path
+          alt="Hotel Background"
+          fill
+          style={{ objectFit: "cover" }}
+          className="opacity-10" // Increased opacity to 40%
+          priority // Optional: ensures the image loads quickly
+        />
+      </div>
+
       {/* Main Content Container */}
       <div className="mx-auto max-w-7xl px-6 lg:px-12 font-inter relative z-10">
-        {/* Heading Section with Dark Blue Gradient */}
-        <div className="text-center bg-gradient-to-r from-blue-800 to-blue-900 text-white mb-14 p-8 rounded-lg shadow-md">
-          <h1 className="mb-6 text-5xl sm:text-6xl font-extrabold relative inline-block">
-            Find Your Ideal Hotel
-            <span className="block w-20 h-1 bg-yellow-400 mx-auto mt-4 rounded"></span>
-          </h1>
-          <p className="mx-auto mb-10 max-w-2xl text-lg sm:text-xl font-normal">
-            Discover top-rated hotels at the best prices. Book your next stay with
-            us!
-          </p>
-        </div>
-
-        {/* Search Form */}
-        <div
-          className="relative flex flex-col items-center justify-center gap-6 sm:flex-row w-full sm:w-auto mb-16"
-          ref={dropdownRef}
-        >
-          <div className="relative w-full sm:w-96">
-            <div className="flex items-center rounded-full border border-gray-300 bg-white bg-opacity-80 backdrop-blur-md shadow-sm transition-all duration-300 focus-within:border-blue-400 hover:shadow-md">
-              <span className="px-4 text-gray-400">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </span>
-              <input
-                type="text"
-                placeholder="Search for a location..."
-                aria-label="Search for a location"
-                className="flex-1 bg-transparent py-3 px-4 text-gray-800 placeholder-gray-400 focus:outline-none text-lg font-roboto"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                onFocus={() => {
-                  if (suggestions.length > 0) setShowSuggestions(true);
-                }}
-                onKeyDown={handleKeyDown}
-              />
-              {isLoading && (
-                <span className="px-4">
-                  <svg
-                    className="animate-spin h-5 w-5 text-blue-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8H4z"
-                    ></path>
-                  </svg>
-                </span>
-              )}
-            </div>
-
-            {/* Suggestions Dropdown */}
-            <AnimatePresence>
-              {showSuggestions && (
-                <motion.ul
-                  className="absolute left-0 right-0 z-30 mt-2 bg-white bg-opacity-90 backdrop-blur-md border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {isLoading ? (
-                    <li className="px-5 py-3 text-center text-gray-600">
-                      Loading...
-                    </li>
-                  ) : suggestions.length > 0 ? (
-                    suggestions.map((suggestion, index) => (
-                      <li
-                        key={index}
-                        className="px-5 py-3 cursor-pointer hover:bg-blue-50 hover:text-gray-800 transition-colors duration-200 text-gray-700"
-                        onClick={() => handleSuggestionClick(suggestion)}
-                      >
-                        {suggestion}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="px-5 py-3 text-center text-gray-600">
-                      No suggestions found.
-                    </li>
-                  )}
-                </motion.ul>
-              )}
-            </AnimatePresence>
+        {/* Flex Container for Header and Search Form */}
+        <div className="flex flex-col items-center space-y-14">
+          {/* Header Section without Background Gradient */}
+          <div className="text-center text-black p-8 rounded-lg shadow-md">
+            <h1 className="mb-6 text-6xl sm:text-7xl font-bold tracking-wider relative inline-block font-playfair">
+              Discover Top Hotels
+              <span className="block w-20 h-1 bg-yellow-400 mx-auto mt-4 rounded"></span>
+            </h1>
+            <p className="mx-auto max-w-2xl text-lg sm:text-xl font-normal font-roboto">
+              Book your next stay with us for the best experience!
+            </p>
           </div>
 
-          {/* Search Button */}
-          <button
-            type="button"
-            onClick={handleSearch}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full py-3 px-10 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none"
+          {/* Search Form */}
+          <div
+            className="relative flex flex-col items-center justify-center gap-6 sm:flex-row w-full sm:w-auto"
+            ref={dropdownRef}
           >
-            Search
-          </button>
+            <div className="relative w-full sm:w-96">
+              <div className="flex items-center rounded-full border border-gray-300 bg-white bg-opacity-80 backdrop-blur-md shadow-sm transition-all duration-300 focus-within:border-blue-400 hover:shadow-md">
+                <span className="px-4 text-gray-400">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search for a location..."
+                  aria-label="Search for a location"
+                  className="flex-1 bg-transparent py-3 px-4 text-gray-800 placeholder-gray-400 focus:outline-none text-lg font-roboto"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  onFocus={() => {
+                    if (suggestions.length > 0) setShowSuggestions(true);
+                  }}
+                  onKeyDown={handleKeyDown}
+                />
+                {isLoading && (
+                  <span className="px-4">
+                    <svg
+                      className="animate-spin h-5 w-5 text-blue-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                  </span>
+                )}
+              </div>
+
+              {/* Suggestions Dropdown */}
+              <AnimatePresence>
+                {showSuggestions && (
+                  <motion.ul
+                    className="absolute left-0 right-0 z-30 mt-2 bg-white bg-opacity-90 backdrop-blur-md border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {isLoading ? (
+                      <li className="px-5 py-3 text-center text-gray-600">
+                        Loading...
+                      </li>
+                    ) : suggestions.length > 0 ? (
+                      suggestions.map((suggestion, index) => (
+                        <li
+                          key={index}
+                          className="px-5 py-3 cursor-pointer hover:bg-blue-50 hover:text-gray-800 transition-colors duration-200 text-gray-700"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          {suggestion}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="px-5 py-3 text-center text-gray-600">
+                        No suggestions found.
+                      </li>
+                    )}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Search Button */}
+            <button
+              type="button"
+              onClick={handleSearch}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full py-3 px-10 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none"
+            >
+              Search
+            </button>
+          </div>
         </div>
 
         {/* Carousel */}
@@ -267,7 +281,7 @@ export default function HeroHome() {
                   />
                 </div>
                 <div className="p-6 text-center">
-                  <h3 className="text-2xl font-semibold text-blue-800 font-inter mb-3">
+                  <h3 className="text-3xl font-semibold text-blue-800 font-playfair mb-3">
                     {hotels[currentHotelIndex].name}
                   </h3>
                   <p className="text-gray-600 font-roboto leading-relaxed mb-5">
