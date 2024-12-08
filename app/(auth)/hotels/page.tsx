@@ -57,11 +57,11 @@ export default function HotelsPage() {
             justify-content: center;
             align-items: center;
             height: 80vh;
-            background-color: #f0f4f8;
+            background-color: #f9fafb;
           }
 
           .spinner {
-            border: 8px solid #f3f3f3;
+            border: 8px solid #e5e7eb;
             border-top: 8px solid #3b82f6;
             border-radius: 50%;
             width: 60px;
@@ -85,7 +85,7 @@ export default function HotelsPage() {
   if (hotels.length === 0) {
     return (
       <div className="no-hotels">
-        <p>No hotels available.</p>
+        <p>No hotels available at the moment.</p>
         <style jsx>{`
           .no-hotels {
             display: flex;
@@ -93,15 +93,15 @@ export default function HotelsPage() {
             align-items: center;
             height: 80vh;
             font-size: 1.5rem;
-            color: #555;
-            background-color: #f0f4f8;
+            color: #6b7280;
+            background-color: #f9fafb;
           }
         `}</style>
       </div>
     );
   }
 
-  // Filter hotels based on the search query, rating, and area
+  // Handle booking navigation
   const handleBookNow = (hotelId: number) => {
     router.push(`/rooms?hotel_id=${hotelId}`);
   };
@@ -137,7 +137,7 @@ export default function HotelsPage() {
           className="rating-filter styled-input"
         >
           <option value={0}>All Ratings</option>
-          {[1, 2, 3, 4, 5].map((rating) => (
+          {[5, 4, 3, 2, 1].map((rating) => (
             <option key={rating} value={rating}>
               {rating} Star{rating > 1 ? "s" : ""}
             </option>
@@ -160,7 +160,12 @@ export default function HotelsPage() {
         <div className="hotel-list">
           {filteredHotels.map((hotel) => (
             <div key={hotel.hotel_id} className="hotel-card">
-              <img src={hotel.image_link} alt={hotel.name} className="hotel-image" />
+              <div className="hotel-image-container">
+                <img src={hotel.image_link} alt={hotel.name} className="hotel-image" />
+                <div className="rating-badge">
+                  {hotel.rating.toFixed(1)} ★
+                </div>
+              </div>
               <div className="hotel-info">
                 <h2 className="hotel-name">{hotel.name}</h2>
                 <p className="hotel-description">
@@ -184,20 +189,12 @@ export default function HotelsPage() {
                 <div className="hotel-rating">
                   {[...Array(5)].map((_, index) => {
                     const isFull = index < Math.floor(hotel.rating);
-                    const isPartial = index === Math.floor(hotel.rating) && hotel.rating % 1 !== 0;
+                    const isHalf = index === Math.floor(hotel.rating) && hotel.rating % 1 >= 0.5;
 
                     return (
-                      <div
-                        key={index}
-                        className={`star ${isFull ? "filled" : ""} ${isPartial ? "partial" : ""}`}
-                        style={{
-                          backgroundImage: isPartial
-                            ? `linear-gradient(90deg, #ffcc00 ${(hotel.rating % 1) * 100}%, #ddd ${(hotel.rating % 1) * 100}%)`
-                            : undefined,
-                        }}
-                      >
+                      <span key={index} className={`star ${isFull ? "filled" : isHalf ? "half" : ""}`}>
                         ★
-                      </div>
+                      </span>
                     );
                   })}
                 </div>
@@ -215,25 +212,25 @@ export default function HotelsPage() {
       </div>
 
       <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
         .hotel-container {
           width: 100%;
           margin: 0;
           padding: 0;
-          background-color: #f0f4f8;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background-color: #f9fafb;
+          font-family: 'Inter', sans-serif;
         }
 
-      .header-section {
-  position: relative; /* Ensure proper positioning */
-  width: 100%;
-  padding: 20px 20px; /* Maintain compact padding */
-  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-  text-align: center;
-  color: #fff;
-  margin-top: -20px; /* Pulls the section slightly up */
-  margin-bottom: 50px; /* Increased bottom margin to add more space */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds subtle depth */
-}
+        .header-section {
+          width: 100%;
+          padding: 60px 20px;
+          background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+          text-align: center;
+          color: #ffffff;
+          position: relative;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
         .page-title {
           font-size: 3rem;
@@ -246,10 +243,10 @@ export default function HotelsPage() {
         .page-title::after {
           content: '';
           display: block;
-          width: 60px;
+          width: 80px;
           height: 4px;
           background-color: #ffcc00;
-          margin: 10px auto 0 auto;
+          margin: 12px auto 0 auto;
           border-radius: 2px;
         }
 
@@ -261,42 +258,40 @@ export default function HotelsPage() {
         }
 
         .filter-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px; /* New margin to ensure space if needed */
-  margin-bottom: 30px;
-  width: 100%;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 2;
-}
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+          justify-content: center;
+          align-items: center;
+          margin: 40px 20px 30px 20px;
+          padding: 20px;
+          background-color: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          position: relative;
+          z-index: 2;
+        }
 
         .styled-input {
           padding: 12px 20px;
-          border: 2px solid #ccc;
+          border: 2px solid #e5e7eb;
           border-radius: 30px;
           outline: none;
           font-size: 1rem;
           transition: border-color 0.3s, box-shadow 0.3s;
-          color: #333;
-          background-color: #fff;
+          color: #4b5563;
+          background-color: #ffffff;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .styled-input::placeholder {
-          color: #888;
+          color: #9ca3af;
         }
 
         .styled-input:focus {
           border-color: #3b82f6;
           box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
-          background-color: #fff;
+          background-color: #ffffff;
         }
 
         .rating-filter,
@@ -315,41 +310,60 @@ export default function HotelsPage() {
         }
 
         .hotel-list {
-          display: flex;
-          flex-direction: column;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
           gap: 30px;
         }
 
         .hotel-card {
           display: flex;
-          flex-direction: row;
-          background: #fff;
+          flex-direction: column;
+          background: #ffffff;
           border-radius: 16px;
           overflow: hidden;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
           transition: transform 0.3s ease, box-shadow 0.3s ease;
-          padding: 15px;
-          align-items: center;
         }
 
         .hotel-card:hover {
           transform: translateY(-5px);
-          box-shadow: 0 16px 24px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 16px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .hotel-image-container {
+          position: relative;
+          width: 100%;
+          height: 200px;
+          overflow: hidden;
         }
 
         .hotel-image {
-          width: 200px;
-          height: 150px;
+          width: 100%;
+          height: 100%;
           object-fit: cover;
-          border-radius: 8px;
-          flex-shrink: 0;
+          transition: transform 0.5s ease;
+        }
+
+        .hotel-card:hover .hotel-image {
+          transform: scale(1.05);
+        }
+
+        .rating-badge {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          background-color: rgba(59, 130, 246, 0.9);
+          color: #ffffff;
+          padding: 5px 10px;
+          border-radius: 20px;
+          font-weight: 600;
+          font-size: 0.9rem;
         }
 
         .hotel-info {
           display: flex;
           flex-direction: column;
-          margin-left: 20px;
-          flex: 1;
+          padding: 20px;
         }
 
         .hotel-name {
@@ -357,14 +371,19 @@ export default function HotelsPage() {
           color: #1e3a8a;
           margin-bottom: 10px;
           font-weight: 700;
+          transition: color 0.3s;
+        }
+
+        .hotel-name:hover {
+          color: #3b82f6;
         }
 
         .hotel-description {
           font-size: 0.95rem;
-          color: #555;
+          color: #6b7280;
           margin-bottom: 12px;
           flex-grow: 1;
-          line-height: 1.5;
+          line-height: 1.6;
         }
 
         .hotel-area {
@@ -381,77 +400,81 @@ export default function HotelsPage() {
 
         .hotel-rating {
           display: flex;
+          align-items: center;
           margin-bottom: 16px;
         }
 
         .star {
           font-size: 18px;
-          color: #ddd;
-          width: 18px;
-          height: 18px;
-          line-height: 18px;
-          text-align: center;
-          margin-right: 3px;
-          position: relative;
+          color: #d1d5db;
+          margin-right: 4px;
           transition: color 0.3s;
         }
 
         .star.filled {
-          color: #ffcc00;
+          color: #f59e0b;
         }
 
-        .star.partial {
-          color: transparent;
-          background-clip: text;
-          -webkit-background-clip: text;
+        .star.half {
+          position: relative;
+          color: #f59e0b;
         }
 
-    .book-button {
-  padding: 10px 20px;
-  background-color: #3b82f6;
-  color: #fff;
-  border: none;
-  border-radius: 5px; /* Adjusted to make the button more squared */
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  text-align: center;
-  transition: background-color 0.3s, transform 0.2s;
-  align-self: flex-start;
-  width: auto;
-}
+        .star.half::after {
+          content: '★';
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 50%;
+          overflow: hidden;
+          color: #d1d5db;
+        }
 
+        .book-button {
+          padding: 12px 20px;
+          background-color: #3b82f6;
+          color: #ffffff;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 1rem;
+          font-weight: 600;
+          text-align: center;
+          transition: background-color 0.3s, transform 0.2s;
+          align-self: flex-start;
+        }
 
         .book-button:hover {
-          background-color: #1e40af;
+          background-color: #2563eb;
           transform: translateY(-2px);
         }
 
         /* Responsive Design */
 
         @media (max-width: 1024px) {
-          .hotel-card {
-            flex-direction: column;
-            align-items: flex-start;
+          .hotel-list {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           }
 
-          .hotel-image {
-            width: 100%;
+          .hotel-image-container {
             height: 180px;
-            margin-bottom: 15px;
           }
 
-          .hotel-info {
-            margin-left: 0;
+          .hotel-name {
+            font-size: 1.5rem;
           }
 
-          .book-button {
-            align-self: center;
+          .hotel-description {
+            font-size: 0.9rem;
           }
         }
 
         @media (max-width: 768px) {
-          .hotel-image {
+          .hotel-list {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          }
+
+          .hotel-image-container {
             height: 160px;
           }
 
@@ -459,13 +482,9 @@ export default function HotelsPage() {
             font-size: 1.4rem;
           }
 
-          .hotel-description {
-            font-size: 0.9rem;
-          }
-
           .book-button {
             font-size: 0.95rem;
-            padding: 8px 16px;
+            padding: 10px 18px;
           }
         }
 
@@ -482,38 +501,26 @@ export default function HotelsPage() {
             font-size: 1rem;
           }
 
-        .filter-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  align-items: center;
-  margin: 40px 20px 30px 20px; /* Adjusted the top margin to move the filters down */
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 2;
-}
-
+          .filter-section {
+            margin: 30px 15px;
+            padding: 15px;
+          }
 
           .styled-input {
             width: 100%;
-            max-width: 300px;
+            max-width: 280px;
           }
 
-          .hotel-card {
-            flex-direction: column;
-            align-items: center;
+          .hotel-list {
+            grid-template-columns: 1fr;
           }
 
-          .hotel-image {
+          .hotel-image-container {
             height: 140px;
           }
 
           .hotel-name {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             text-align: center;
           }
 
@@ -522,9 +529,14 @@ export default function HotelsPage() {
             text-align: center;
           }
 
+          .hotel-info {
+            padding: 15px;
+          }
+
           .book-button {
             font-size: 0.9rem;
             padding: 8px 16px;
+            align-self: center;
           }
         }
       `}</style>

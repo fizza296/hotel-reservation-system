@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Define the Hotel interface
 interface Hotel {
   id: number;
   name: string;
@@ -42,13 +41,12 @@ export default function HeroHome() {
       imageSrc: "/images/image3.jpg",
       description: "Experience the heart of the city.",
     },
-    // You can add more hotels here if needed
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentHotelIndex((prevIndex) => (prevIndex + 1) % hotels.length);
-    }, 3000); // Change slide every 3 seconds
+    }, 3000);
     return () => clearInterval(interval);
   }, [hotels.length]);
 
@@ -62,12 +60,11 @@ export default function HeroHome() {
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
     }
+
     debounceTimeout.current = setTimeout(() => {
       fetch(`/api/auth/get_areas?query=${encodeURIComponent(location)}`)
         .then((res) => {
-          if (!res.ok) {
-            throw new Error(`Error: ${res.status}`);
-          }
+          if (!res.ok) throw new Error(`Error: ${res.status}`);
           return res.json();
         })
         .then((data) => {
@@ -84,9 +81,7 @@ export default function HeroHome() {
     }, 300);
 
     return () => {
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
-      }
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
   }, [location]);
 
@@ -97,9 +92,7 @@ export default function HeroHome() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -108,112 +101,134 @@ export default function HeroHome() {
   };
 
   const handleSearch = () => {
-    if (location.trim() === "") {
-      return;
-    }
+    if (location.trim() === "") return;
     router.push(`/hotels?area=${encodeURIComponent(location.trim())}`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
+    if (e.key === "Enter") handleSearch();
   };
 
   return (
     <motion.section
-      className="relative bg-gradient-radial from-blue-100 via-blue-200 to-blue-300 pt-24 sm:pt-32 pb-16"
+      className="relative bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 pt-24 sm:pt-32 pb-20"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-12">
-        <div className="text-center text-accent-light">
-          <h1 className="mb-6 text-5xl sm:text-6xl font-extrabold font-inter text-accent-light">
+      <div className="mx-auto max-w-7xl px-6 lg:px-12 font-inter">
+        {/* Heading Section */}
+        <div className="text-center text-accent-light mb-14">
+          <h1 className="mb-6 text-5xl sm:text-6xl font-extrabold text-gray-900 relative inline-block">
             Find Your Ideal Hotel
+            <span className="block w-20 h-1 bg-yellow-400 mx-auto mt-4 rounded"></span>
           </h1>
-          <p className="mx-auto mb-10 text-lg sm:text-xl font-roboto text-accent-light max-w-2xl">
+          <p className="mx-auto mb-10 max-w-2xl text-lg sm:text-xl text-gray-700 font-normal">
             Discover top-rated hotels at the best prices. Book your next stay with us!
           </p>
+        </div>
 
-          {/* Booking Form */}
-          <div className="flex flex-col items-center justify-center gap-6 sm:flex-row relative w-full sm:w-auto" ref={dropdownRef}>
-            <div className="relative w-full sm:w-96">
-              <div className="flex items-center border border-primary-light rounded-full bg-accent-dark bg-opacity-30 backdrop-filter backdrop-blur-lg shadow-lg hover:bg-opacity-40 transition-all duration-300">
-                <span className="px-4 text-accent-light">
-                  {/* Search Icon */}
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+        {/* Search Form */}
+        <div
+          className="relative flex flex-col items-center justify-center gap-6 sm:flex-row w-full sm:w-auto mb-16"
+          ref={dropdownRef}
+        >
+          <div className="relative w-full sm:w-96">
+            <div className="flex items-center rounded-full border border-gray-300 bg-white bg-opacity-80 backdrop-blur-md shadow-md transition-all duration-300 focus-within:border-blue-400 hover:shadow-lg">
+              <span className="px-4 text-gray-400">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                placeholder="Search for a location..."
+                aria-label="Search for a location"
+                className="flex-1 bg-transparent py-3 px-4 text-gray-800 placeholder-gray-400 focus:outline-none text-lg font-roboto"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                onFocus={() => {
+                  if (suggestions.length > 0) setShowSuggestions(true);
+                }}
+                onKeyDown={handleKeyDown}
+              />
+              {isLoading && (
+                <span className="px-4">
+                  <svg
+                    className="animate-spin h-5 w-5 text-blue-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
                     <path
-                      fillRule="evenodd"
-                      d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z"
-                      clipRule="evenodd"
-                    />
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
                   </svg>
                 </span>
-                <input
-                  type="text"
-                  placeholder="Search for a location"
-                  aria-label="Search for a location"
-                  className="flex-1 py-3 px-4 bg-transparent focus:outline-none text-accent-light placeholder-accent-light placeholder-opacity-70 text-lg font-roboto"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  onFocus={() => {
-                    if (suggestions.length > 0) setShowSuggestions(true);
-                  }}
-                  onKeyDown={handleKeyDown}
-                />
-                {isLoading && (
-                  <span className="px-4">
-                    {/* Loading Spinner */}
-                    <svg className="animate-spin h-5 w-5 text-accent-light" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                    </svg>
-                  </span>
-                )}
-              </div>
-              {/* Suggestions Dropdown */}
-              <AnimatePresence>
-                {showSuggestions && (
-                  <motion.ul
-                    className="absolute left-0 right-0 z-30 mt-1 bg-accent-dark bg-opacity-90 backdrop-filter backdrop-blur-lg border border-primary-light rounded-lg shadow-lg max-h-60 overflow-y-auto"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {isLoading ? (
-                      <li className="px-5 py-3 text-center text-accent-light">Loading...</li>
-                    ) : suggestions.length > 0 ? (
-                      suggestions.map((suggestion, index) => (
-                        <li
-                          key={index}
-                          className="px-5 py-3 hover:bg-primary-light hover:text-accent-dark cursor-pointer transition-colors duration-200"
-                          onClick={() => handleSuggestionClick(suggestion)}
-                        >
-                          {suggestion}
-                        </li>
-                      ))
-                    ) : (
-                      <li className="px-5 py-3 text-center text-accent-light">No suggestions found.</li>
-                    )}
-                  </motion.ul>
-                )}
-              </AnimatePresence>
+              )}
             </div>
-            {/* Updated Search Button */}
-            <button
-              type="button"
-              onClick={handleSearch}
-              className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-accent-light font-semibold rounded-full py-3 px-8 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none"
-            >
-              Search
-            </button>
+
+            {/* Suggestions Dropdown */}
+            <AnimatePresence>
+              {showSuggestions && (
+                <motion.ul
+                  className="absolute left-0 right-0 z-30 mt-2 bg-white bg-opacity-90 backdrop-blur-md border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {isLoading ? (
+                    <li className="px-5 py-3 text-center text-gray-600">Loading...</li>
+                  ) : suggestions.length > 0 ? (
+                    suggestions.map((suggestion, index) => (
+                      <li
+                        key={index}
+                        className="px-5 py-3 cursor-pointer hover:bg-blue-100 hover:text-gray-800 transition-colors duration-200 text-gray-700"
+                        onClick={() => handleSuggestionClick(suggestion)}
+                      >
+                        {suggestion}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="px-5 py-3 text-center text-gray-600">No suggestions found.</li>
+                  )}
+                </motion.ul>
+              )}
+            </AnimatePresence>
           </div>
+
+          {/* Search Button */}
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full py-3 px-10 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 focus:outline-none"
+          >
+            Search
+          </button>
         </div>
 
         {/* Carousel */}
-        <div className="relative overflow-hidden h-96 w-full max-w-4xl mx-auto mt-12 mb-12">
+        <div className="relative overflow-hidden h-96 w-full max-w-4xl mx-auto mt-12 mb-20 rounded-2xl shadow-lg">
           <AnimatePresence>
             <motion.div
               key={hotels[currentHotelIndex].id}
@@ -223,7 +238,7 @@ export default function HeroHome() {
               exit={{ opacity: 0, x: -100 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="w-full max-w-3xl bg-accent-light bg-opacity-90 backdrop-filter backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden">
+              <div className="w-full max-w-3xl bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden">
                 <div className="relative h-64">
                   <Image
                     src={hotels[currentHotelIndex].imageSrc}
@@ -234,10 +249,10 @@ export default function HeroHome() {
                   />
                 </div>
                 <div className="p-6 text-center">
-                  <h3 className="text-2xl font-semibold text-primary-dark font-inter">
+                  <h3 className="text-2xl font-semibold text-blue-800 font-inter mb-3">
                     {hotels[currentHotelIndex].name}
                   </h3>
-                  <p className="mt-3 text-accent-dark font-roboto">
+                  <p className="text-gray-600 font-roboto leading-relaxed mb-5">
                     {hotels[currentHotelIndex].description}
                   </p>
                   <Link
@@ -245,7 +260,7 @@ export default function HeroHome() {
                       pathname: "/rooms",
                       query: { hotel_id: hotels[currentHotelIndex].id },
                     }}
-                    className="mt-6 inline-block text-primary-light hover:text-primary-dark font-medium transition-colors duration-200"
+                    className="inline-block py-2 px-4 text-blue-600 font-medium border border-blue-600 rounded-full transition duration-300 hover:bg-blue-600 hover:text-white hover:shadow-lg"
                   >
                     View details &rarr;
                   </Link>
@@ -255,11 +270,11 @@ export default function HeroHome() {
           </AnimatePresence>
         </div>
 
-        {/* Updated View More Hotels Button */}
-        <div className="mt-24 flex justify-center">
+        {/* View More Hotels Button */}
+        <div className="flex justify-center">
           <Link
             href="/hotels"
-            className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-accent-light font-semibold rounded-full py-4 px-10 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 block text-center"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-full py-4 px-10 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1"
           >
             View More Hotels
           </Link>
