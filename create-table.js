@@ -176,6 +176,37 @@ const createDailyRoomAvailabilityUpdateEvent = `
 `;
 
 
+const prevent_past_check_in_date_on_insert = `
+CREATE TRIGGER prevent_past_check_in_date_on_insert
+BEFORE INSERT ON Bookings
+FOR EACH ROW
+BEGIN
+    -- Check if the new check_in_date is before the current date
+    IF NEW.check_in_date < CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Check-in date cannot be in the past.';
+    END IF;
+END;
+`;
+
+const prevent_past_check_in_date = `
+CREATE TRIGGER prevent_past_check_in_date
+BEFORE UPDATE ON Bookings
+FOR EACH ROW
+BEGIN
+    -- Check if the new check_in_date is before the current date
+    IF NEW.check_in_date < CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Check-in date cannot be in the past.';
+    END IF;
+END;
+//
+`;
+
+
+
+
+
 connection.query(createUsersTable, 'Users table');
 connection.query(createHotelsTable, 'Hotels table');
 connection.query(createRoomsTable, 'Rooms table');
