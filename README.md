@@ -1,6 +1,6 @@
 # Hotel Reservation System
 
-**HotelRes** is a comprehensive hotel reservation platform built using **TailwindCSS** and fully coded in **TypeScript** with **React** / **Next.js**. Designed to facilitate easy booking and management of hotel accommodations, HotelRes is ideal for both personal and commercial use in the hospitality industry. Created and maintained with ❤️ by the HotelRes development team.
+**HotelRes** is a comprehensive hotel reservation platform built using **TailwindCSS** and fully coded in **TypeScript** with **React** / **Next.js**. Designed to facilitate easy booking and management of hotel accommodations. Created and maintained with ❤️ by the HotelRes development team.
 
 _Version 1.0.0 features dynamic hotel listings, user profile management, and real-time room booking capabilities._
 
